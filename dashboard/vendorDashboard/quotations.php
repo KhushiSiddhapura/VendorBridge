@@ -148,6 +148,12 @@ $submitted_quotes = mysqli_query($conn, "
                             Quotations
                         </a>
                     </li>
+                    <li>
+                        <a href="profile.php">
+                            <span class="nav-icon">👤</span>
+                            Profile
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </aside>
