@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once '../auth/session_helper.php';
+requireRoles(['admin']);
 ?>
 
 <!DOCTYPE html>
@@ -74,63 +75,86 @@ session_start();
 
     <div class="app-layout">
 
-        <aside class="app-sidebar">
+                <aside class="app-sidebar">
             <nav class="sidebar-nav">
                 <ul>
-                    <li>
-                        <a href="landingpage.html">
+                    <?php
+                    $script = $_SERVER['SCRIPT_NAME'];
+                    $active_dash = (strpos($script, '/dashboard/adminDashboard/dashboard/') !== false) ? 'active' : '';
+                    $active_vendors = (strpos($script, '/dashboard/adminDashboard/vendors/') !== false) ? 'active' : '';
+                    $active_rfq = (strpos($script, '/dashboard/adminDashboard/RFQ/') !== false) ? 'active' : '';
+                    $active_quotes = (strpos($script, '/dashboard/adminDashboard/quotations/') !== false) ? 'active' : '';
+                    $active_approvals = (strpos($script, '/dashboard/adminDashboard/approvals/') !== false) ? 'active' : '';
+                    $active_po = (strpos($script, '/dashboard/adminDashboard/purchase_orders/') !== false) ? 'active' : '';
+                    $active_invoices = (strpos($script, '/dashboard/adminDashboard/invoices/') !== false) ? 'active' : '';
+                    $active_reports = (strpos($script, '/dashboard/adminDashboard/reports/') !== false) ? 'active' : '';
+                    $active_activity = (strpos($script, '/dashboard/adminDashboard/activity/') !== false) ? 'active' : '';
+                    $active_register = (strpos($script, '/register/') !== false) ? 'active' : '';
+                    
+                    $root = getProjectRoot();
+                    ?>
+                    <li class="<?= $active_dash ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/dashboard/adminDashboard.php">
                             <span class="nav-icon">📊</span>
                             Dashboard
                         </a>
                     </li>
-                    <li class="active">
-                        <a href="../dashboard/adminDashboard/vendors/vendors.php">
+                    <li class="<?= $active_vendors ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/vendors/vendors.php">
                             <span class="nav-icon">🤝</span>
                             Vendors
                         </a>
                     </li>
-                    <li>
-                        <a href="#rfqs">
+                    <li class="<?= $active_rfq ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/RFQ/rfq_list.php">
                             <span class="nav-icon">📝</span>
                             RFQ's
                         </a>
                     </li>
-                    <li>
-                        <a href="#quotations">
+                    <li class="<?= $active_quotes ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/quotations/quotations.php">
                             <span class="nav-icon">📁</span>
                             Quotations
                         </a>
                     </li>
-                    <li>
-                        <a href="#approvals">
+                    <li class="<?= $active_approvals ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/approvals/approvals.php">
                             <span class="nav-icon">✅</span>
                             Approvals
                         </a>
                     </li>
-                    <li>
-                        <a href="#purchase-orders">
+                    <li class="<?= $active_po ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/purchase_orders/po_list.php">
                             <span class="nav-icon">📦</span>
                             Purchase orders
                         </a>
                     </li>
-                    <li>
-                        <a href="#invoices">
+                    <li class="<?= $active_invoices ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/invoices/invoices.php">
                             <span class="nav-icon">🧾</span>
                             Invoices
                         </a>
                     </li>
-                    <li>
-                        <a href="#reports">
+                    <li class="<?= $active_reports ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/reports/reports.php">
                             <span class="nav-icon">📈</span>
                             Reports
                         </a>
                     </li>
-                    <li>
-                        <a href="#activity">
+                    <li class="<?= $active_activity ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/activity/activity.php">
                             <span class="nav-icon">🔔</span>
                             Activity
                         </a>
                     </li>
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                    <li class="<?= $active_register ?>">
+                        <a href="<?= $root ?>register/register.php">
+                            <span class="nav-icon">👤</span>
+                            Add Account
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         </aside>
