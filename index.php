@@ -40,7 +40,7 @@
             </p>
 
             <div class="buttons">
-                <a href="./login/login.html" class="primary-btn">
+                <a href="./login/login.php" class="primary-btn">
                     Access Portal
                 </a>
 

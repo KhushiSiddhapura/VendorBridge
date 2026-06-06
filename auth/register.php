@@ -1,6 +1,7 @@
 <?php
 
 include '../config/connection.php';
+require_once '../services/mailService.php';
 
 session_start();
 
@@ -58,9 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         preg_replace('/[^a-zA-Z0-9]/', '', $lastname)
     );
 
-    // Default password = username
-    $hashedPassword = password_hash($username, PASSWORD_BCRYPT);
-
     // Ensure username is unique
     do {
 
@@ -68,6 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $username = $baseUsername . $randomNumber;
 
+        // Default password = username
+        $hashedPassword = password_hash($username, PASSWORD_BCRYPT);
+        
         $checkUsername = mysqli_query(
             $conn,
             "SELECT id FROM users WHERE username = '$username'"
@@ -106,6 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => 'User created successfully'
         ];
 
+        sendCredentialsMail($email, $firstname, $username, $hashedPassword);
+
         header('Location: ../dashboard/dashboard.html');
         exit();
 
@@ -121,6 +124,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 } else {
-
     die('Invalid request method.');
 }
