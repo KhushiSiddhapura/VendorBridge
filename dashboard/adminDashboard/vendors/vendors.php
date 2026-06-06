@@ -63,19 +63,19 @@ $vendors = mysqli_query(
             <nav class="sidebar-nav">
                 <ul>
                     <li>
-                        <a href="landingpage.html">
+                        <a href="../dashboard/adminDashboard.php">
                             <span class="nav-icon">📊</span>
                             Dashboard
                         </a>
                     </li>
                     <li class="active">
-                        <a href="vendor.html">
+                        <a href="./vendors.php">
                             <span class="nav-icon">🤝</span>
                             Vendors
                         </a>
                     </li>
                     <li>
-                        <a href="#rfqs">
+                        <a href="../RFQ/rfq.php">
                             <span class="nav-icon">📝</span>
                             RFQ's
                         </a>

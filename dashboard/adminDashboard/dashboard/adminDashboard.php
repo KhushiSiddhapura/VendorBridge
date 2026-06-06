@@ -54,19 +54,19 @@ session_start();
             <nav class="sidebar-nav">
                 <ul>
                     <li class="active">
-                        <a href="#dashboard">
+                        <a href="../dashboard/adminDashboard.php">
                             <span class="nav-icon">📊</span>
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="./vendors/vendors.php">
+                        <a href="../vendors/vendors.php">
                             <span class="nav-icon">🤝</span>
                             Vendors
                         </a>
                     </li>
                     <li>
-                        <a href="#rfqs">
+                        <a href="../RFQ/rfq.php">
                             <span class="nav-icon">📝</span>
                             RFQ's
                         </a>

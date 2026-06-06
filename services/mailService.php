@@ -339,3 +339,108 @@ function sendPasswordChangedMail(
         return false;
     }
 }
+
+
+/**
+ * Sends RFQ notification to an assigned vendor.
+ *
+ * @param  string $email       Vendor's email address.
+ * @param  string $firstname   Vendor's first name.
+ * @param  string $rfqNumber   Generated RFQ number.
+ * @param  string $title       RFQ title.
+ * @param  string $category    RFQ category.
+ * @param  string $deadline    Submission deadline.
+ * @param  string $description RFQ description.
+ * @param  array  $items       Line item names.
+ * @param  array  $quantities  Line item quantities.
+ * @param  array  $units       Line item units.
+ * @return bool
+ */
+function sendRFQMail(
+    string $email,
+    string $firstname,
+    string $rfqNumber,
+    string $title,
+    string $category,
+    string $deadline,
+    string $description,
+    array  $items,
+    array  $quantities,
+    array  $units
+): bool {
+
+    $mail = _getMailer();
+    if (!$mail) return false;
+
+    try {
+
+        $mail->addAddress($email);
+        $mail->Subject = "New RFQ Assigned — {$rfqNumber}";
+
+        $safeFirst    = htmlspecialchars($firstname,   ENT_QUOTES);
+        $safeNumber   = htmlspecialchars($rfqNumber,   ENT_QUOTES);
+        $safeTitle    = htmlspecialchars($title,       ENT_QUOTES);
+        $safeCategory = htmlspecialchars($category,    ENT_QUOTES);
+        $safeDeadline = htmlspecialchars($deadline,    ENT_QUOTES);
+        $safeDesc     = $description
+                          ? '<p><strong>Description:</strong> ' . htmlspecialchars($description, ENT_QUOTES) . '</p>'
+                          : '';
+
+        // Build line items table rows
+        $itemRows = '';
+        foreach ($items as $i => $itemName) {
+            $safeItem = htmlspecialchars($itemName,          ENT_QUOTES);
+            $safeQty  = htmlspecialchars($quantities[$i] ?? '', ENT_QUOTES);
+            $safeUnit = htmlspecialchars($units[$i]      ?? '', ENT_QUOTES);
+            $itemRows .= "<tr>
+                <td style='padding:8px 12px;border-bottom:1px solid #ebebeb;'>{$safeItem}</td>
+                <td style='padding:8px 12px;border-bottom:1px solid #ebebeb;text-align:center;'>{$safeQty}</td>
+                <td style='padding:8px 12px;border-bottom:1px solid #ebebeb;text-align:center;'>{$safeUnit}</td>
+            </tr>";
+        }
+
+        $body = <<<HTML
+        <h2>New RFQ Assigned to You</h2>
+        <p>Hi {$safeFirst}, a new Request for Quotation has been issued and assigned to you.</p>
+
+        <div class="cred-box">
+            <p><strong>RFQ Number:</strong> {$safeNumber}</p>
+            <p><strong>Title:</strong> {$safeTitle}</p>
+            <p><strong>Category:</strong> {$safeCategory}</p>
+            <p><strong>Submission Deadline:</strong> {$safeDeadline}</p>
+        </div>
+
+        {$safeDesc}
+
+        <h3 style="color:#1a1a2e;margin-top:28px;">Line Items</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <thead>
+                <tr style="background:#f0eeff;">
+                    <th style="padding:10px 12px;text-align:left;color:#1a1a2e;">Item</th>
+                    <th style="padding:10px 12px;text-align:center;color:#1a1a2e;">Qty</th>
+                    <th style="padding:10px 12px;text-align:center;color:#1a1a2e;">Unit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {$itemRows}
+            </tbody>
+        </table>
+
+        <p style="margin-top:28px;">Please log in to VendorBridge to submit your quotation before the deadline.</p>
+
+        <p class="warning">
+            This RFQ was assigned to you by your procurement team. Do not reply to this email.
+        </p>
+        HTML;
+
+        $mail->Body    = _wrapEmailTemplate($body);
+        $mail->AltBody = "Hi {$safeFirst}, you have been assigned RFQ {$safeNumber} - {$safeTitle}. Deadline: {$safeDeadline}. Please log in to VendorBridge to submit your quotation.";
+
+        $mail->send();
+        return true;
+
+    } catch (Exception $e) {
+        error_log('[mailService] sendRFQMail failed: ' . $mail->ErrorInfo);
+        return false;
+    }
+}
