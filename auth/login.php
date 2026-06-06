@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'message' => 'Login successful'
             ];
 
-            header('Location: ../dashboard/dashboard.html');
+            header("Location: ../dashboard/{$user['role']}Dashboard/{$user['role']}Dashboard.php");
             exit();
         }
     }
