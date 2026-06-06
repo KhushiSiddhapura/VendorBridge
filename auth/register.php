@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         sendCredentialsMail($email, $firstname, $username, $username);
 
-        header('Location: ../dashboard/dashboard.html');
+        header('Location: ../register/register.php');
         exit();
 
     } else {

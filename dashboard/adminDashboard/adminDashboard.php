@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +10,8 @@
     <meta name="description" content="VendorBridge portal main dashboard. Track vendors, purchase orders, quotations, and active RFQs.">
     <title>VendorBridge - Dashboard portal</title>
     <link rel="stylesheet" href="adminDashboard.css">
+    <link rel="stylesheet" href="../../toaster/toaster.css">
+    <script src="../../toaster/toaster.js"></script>
 </head>
 <body>
 
@@ -276,6 +282,18 @@
                 });
             }
         });
+
     </script>
+
+    <?php if(isset($_SESSION['toast'])): ?>
+    <script>
+    showToast(
+        <?= json_encode($_SESSION['toast']['message']) ?>,
+        <?= json_encode($_SESSION['toast']['type']) ?>
+    );
+    </script>
+    <?php unset($_SESSION['toast']); ?>
+    <?php endif; ?>
+
 </body>
 </html>
