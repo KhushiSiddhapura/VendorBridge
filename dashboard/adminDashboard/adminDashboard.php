@@ -60,7 +60,7 @@ session_start();
                         </a>
                     </li>
                     <li>
-                        <a href="#vendors">
+                        <a href="./vendors/vendors.php">
                             <span class="nav-icon">🤝</span>
                             Vendors
                         </a>

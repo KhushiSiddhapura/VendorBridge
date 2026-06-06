@@ -1,5 +1,19 @@
+<?php
+
+session_start();
+
+require '../../../config/connection.php';
+
+$vendors = mysqli_query(
+    $conn,
+    "SELECT * FROM users WHERE role = 'vendor'"
+);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +21,7 @@
     <title>VendorBridge - Vendors Portal</title>
     <link rel="stylesheet" href="vendors.css">
 </head>
+
 <body>
 
     <!-- Mobile Menu Backdrop -->
@@ -33,8 +48,8 @@
             <span class="avatar-initial color-g" title="Guest">G</span>
             <div class="user-avatar-circle" title="User Profile">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
                 </svg>
             </div>
         </div>
@@ -42,7 +57,7 @@
 
     <!-- App Main Layout -->
     <div class="app-layout">
-        
+
         <!-- Sidebar Navigation -->
         <aside class="app-sidebar">
             <nav class="sidebar-nav">
@@ -107,7 +122,7 @@
 
         <!-- Main Content Panel -->
         <main class="app-content">
-            
+
             <!-- Welcome Header & Action -->
             <section class="content-header">
                 <div class="title-row">
@@ -115,9 +130,11 @@
                         <h1 class="welcome-title">Vendors</h1>
                         <p class="welcome-subtitle">Manage supplier profiles and registrations</p>
                     </div>
-                    <button class="btn btn-primary" id="btnAddVendor">
-                        <span class="btn-icon">+</span> Add Vendor
-                    </button>
+                    <a href="../../../register/register.php">
+                        <button class="btn btn-primary" id="btnAddVendor">
+                            <span class="btn-icon">+</span> Add Vendor
+                        </button>
+                    </a>
                 </div>
             </section>
 
@@ -137,10 +154,21 @@
             <!-- Status Tabs Section -->
             <section class="filter-section">
                 <div class="filter-tabs">
-                    <button class="filter-tab active">All</button>
-                    <button class="filter-tab">Active (21)</button>
-                    <button class="filter-tab">Pending (4)</button>
-                    <button class="filter-tab">Blocked (3)</button>
+                    <button class="filter-tab active">
+                        All (<?= mysqli_num_rows($vendors) ?>)
+                    </button>
+
+                    <button class="filter-tab">
+                        Active (0)
+                    </button>
+
+                    <button class="filter-tab">
+                        Pending (<?= mysqli_num_rows($vendors) ?>)
+                    </button>
+
+                    <button class="filter-tab">
+                        Blocked (0)
+                    </button>
                 </div>
             </section>
 
@@ -160,45 +188,99 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="vendor-name-col">
-                                        <div class="vendor-info">
-                                            <span class="vendor-avatar avatar-infra">I</span>
-                                            <span class="vendor-name-text">Infra Supplies Pvt Ltd</span>
-                                        </div>
-                                    </td>
-                                    <td>Constructions</td>
-                                    <td><code class="gst-code">27AABCS1429B1Z0</code></td>
-                                    <td>+91 98765 01234</td>
-                                    <td><span class="status-pill active-status">Active</span></td>
-                                    <td><button class="btn btn-action">View</button></td>
-                                </tr>
-                                <tr>
-                                    <td class="vendor-name-col">
-                                        <div class="vendor-info">
-                                            <span class="vendor-avatar avatar-tech">T</span>
-                                            <span class="vendor-name-text">Tech Core LTD</span>
-                                        </div>
-                                    </td>
-                                    <td>IT</td>
-                                    <td><code class="gst-code">27AABCS1429B1Z0</code></td>
-                                    <td>+91 98765 56789</td>
-                                    <td><span class="status-pill active-status">Active</span></td>
-                                    <td><button class="btn btn-action">View</button></td>
-                                </tr>
-                                <tr>
-                                    <td class="vendor-name-col">
-                                        <div class="vendor-info">
-                                            <span class="vendor-avatar avatar-fast">F</span>
-                                            <span class="vendor-name-text">FastLog Transport</span>
-                                        </div>
-                                    </td>
-                                    <td>Logistics</td>
-                                    <td><code class="gst-code">27AABCS1429B1Z0</code></td>
-                                    <td>+91 98765 99999</td>
-                                    <td><span class="status-pill blocked-status">Blocked</span></td>
-                                    <td><button class="btn btn-action">View</button></td>
-                                </tr>
+
+                                <?php if (mysqli_num_rows($vendors) > 0): ?>
+
+                                    <?php mysqli_data_seek($vendors, 0); ?>
+
+                                    <?php while ($vendor = mysqli_fetch_assoc($vendors)): ?>
+
+                                        <tr>
+
+                                            <td class="vendor-name-col">
+
+                                                <div class="vendor-info">
+
+                                                    <span class="vendor-avatar">
+
+                                                        <?= strtoupper(substr($vendor['firstname'], 0, 1)) ?>
+
+                                                    </span>
+
+                                                    <span class="vendor-name-text">
+
+                                                        <?= htmlspecialchars(
+                                                            $vendor['firstname'] . ' ' . $vendor['lastname']
+                                                        ) ?>
+
+                                                    </span>
+
+                                                </div>
+
+                                            </td>
+
+                                            <td>
+
+                                                -
+
+                                            </td>
+
+                                            <td>
+
+                                                <code class="gst-code">
+
+                                                    -
+
+                                                </code>
+
+                                            </td>
+
+                                            <td>
+
+                                                <?= htmlspecialchars($vendor['phone']) ?>
+
+                                            </td>
+
+                                            <td>
+
+                                                <span class="status-pill pending-status">
+
+                                                    Pending
+
+                                                </span>
+
+                                            </td>
+
+                                            <td>
+
+                                                <button
+                                                    class="btn btn-action"
+                                                    onclick="window.location.href='vendorprofile.php?id=<?= $vendor['id'] ?>'">
+
+                                                    View
+
+                                                </button>
+
+                                            </td>
+
+                                        </tr>
+
+                                    <?php endwhile; ?>
+
+                                <?php else: ?>
+
+                                    <tr>
+
+                                        <td colspan="6" style="text-align:center; padding:30px;">
+
+                                            No vendors found.
+
+                                        </td>
+
+                                    </tr>
+
+                                <?php endif; ?>
+
                             </tbody>
                         </table>
                     </div>
@@ -235,4 +317,5 @@
         });
     </script>
 </body>
+
 </html>
