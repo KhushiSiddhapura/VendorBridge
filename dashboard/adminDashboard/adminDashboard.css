@@ -219,6 +219,7 @@ body.menu-open .menu-backdrop {
 .app-content {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 2rem 2.5rem;
     display: flex;
     flex-direction: column;
@@ -649,12 +650,6 @@ body.menu-open .menu-backdrop {
     .orders-table td {
         padding: 0.75rem 0.6rem;
         white-space: nowrap;
-    }
-    
-    .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
     }
     
     .actions-row {
