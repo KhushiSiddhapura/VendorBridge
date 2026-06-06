@@ -100,6 +100,19 @@ $po_query = mysqli_query($conn, "
             border-radius: var(--radius-sm);
             border: 1px solid var(--panel-border);
         }
+        .static-input-box {
+            background-color: #f8fafc;
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-title);
+            margin-top: 0.25rem;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
         .history-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -210,16 +223,17 @@ $po_query = mysqli_query($conn, "
     </header>
 
     <div class="app-layout">
-        <aside class="app-sidebar">
+                        <aside class="app-sidebar">
             <nav class="sidebar-nav">
                 <ul>
                     <?php
                     $script = $_SERVER['SCRIPT_NAME'];
                     $active_dash = (strpos($script, '/dashboard/adminDashboard/dashboard/') !== false) ? 'active' : '';
-                    $active_vendors = (strpos($script, '/dashboard/adminDashboard/vendors/') !== false || strpos($script, 'vendorprofile.php') !== false) ? 'active' : '';
+                    $active_vendors = (strpos($script, '/dashboard/adminDashboard/vendors/') !== false) ? 'active' : '';
                     $active_rfq = (strpos($script, '/dashboard/adminDashboard/RFQ/') !== false) ? 'active' : '';
                     $active_quotes = (strpos($script, '/dashboard/adminDashboard/quotations/') !== false) ? 'active' : '';
-                    $active_approvals = (strpos($script, '/dashboard/adminDashboard/approvals/') !== false) ? 'active' : '';
+                    $active_approvals = (strpos($script, '/dashboard/adminDashboard/approvals/') !== false && strpos($script, 'user_approvals.php') === false) ? 'active' : '';
+                    $active_user_approvals = (strpos($script, '/dashboard/adminDashboard/approvals/user_approvals.php') !== false) ? 'active' : '';
                     $active_po = (strpos($script, '/dashboard/adminDashboard/purchase_orders/') !== false) ? 'active' : '';
                     $active_invoices = (strpos($script, '/dashboard/adminDashboard/invoices/') !== false) ? 'active' : '';
                     $active_reports = (strpos($script, '/dashboard/adminDashboard/reports/') !== false) ? 'active' : '';
@@ -283,6 +297,12 @@ $po_query = mysqli_query($conn, "
                         </a>
                     </li>
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                    <li class="<?= $active_user_approvals ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/approvals/user_approvals.php">
+                            <span class="nav-icon">👥</span>
+                            User Approvals
+                        </a>
+                    </li>
                     <li class="<?= $active_register ?>">
                         <a href="<?= $root ?>register/register.php">
                             <span class="nav-icon">👤</span>
@@ -337,6 +357,14 @@ $po_query = mysqli_query($conn, "
                         <div class="detail-item">
                             <span class="detail-label">Onboarding Status</span>
                             <span class="detail-value" style="color: #d97706;">Pending Verification</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Business Category</span>
+                            <div class="static-input-box"><?= htmlspecialchars($vendor['category'] ?? 'Not Set') ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">GST Number</span>
+                            <div class="static-input-box" style="font-family: monospace; font-size: 0.9rem; letter-spacing: 0.5px;"><?= htmlspecialchars($vendor['gst_number'] ?? 'Not Set') ?></div>
                         </div>
                         <div class="detail-value-desc">
                             <span class="detail-label" style="display:block; margin-bottom: 0.5rem;">Business Description & GSTIN details</span>

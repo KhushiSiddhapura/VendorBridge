@@ -18,9 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lastname = mysqli_real_escape_string($conn, trim($_POST['lastname'] ?? ''));
     $phone = mysqli_real_escape_string($conn, trim($_POST['phone'] ?? ''));
     $country = mysqli_real_escape_string($conn, trim($_POST['country'] ?? ''));
+    $category = mysqli_real_escape_string($conn, trim($_POST['category'] ?? ''));
+    $gst_number = mysqli_real_escape_string($conn, trim($_POST['gst_number'] ?? ''));
     $description = mysqli_real_escape_string($conn, trim($_POST['description'] ?? ''));
 
-    if (empty($firstname) || empty($lastname) || empty($phone) || empty($country)) {
+    if (empty($firstname) || empty($lastname) || empty($phone) || empty($country) || empty($category) || empty($gst_number)) {
         $_SESSION['toast'] = [
             'type' => 'fail',
             'message' => 'Please fill all required profile fields.'
@@ -31,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        lastname = '$lastname', 
                        phone = '$phone', 
                        country = '$country', 
+                       category = '$category', 
+                       gst_number = '$gst_number', 
                        description = '$description' 
                        WHERE id = $vendor_id";
                        
@@ -305,6 +309,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <span class="meta-value"><?= htmlspecialchars($vendor['email']) ?></span>
                         </div>
                         <div class="meta-row">
+                            <span class="meta-label">Category:</span>
+                            <span class="meta-value"><?= htmlspecialchars($vendor['category'] ?? 'Not Set') ?></span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">GST No:</span>
+                            <span class="meta-value"><?= htmlspecialchars($vendor['gst_number'] ?? 'Not Set') ?></span>
+                        </div>
+                        <div class="meta-row">
                             <span class="meta-label">Status:</span>
                             <span class="meta-value" style="color: #059669;">Verified Sourcing</span>
                         </div>
@@ -335,6 +347,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-group">
                                 <label class="form-label" for="country">Country*</label>
                                 <input type="text" name="country" id="country" class="form-control" value="<?= htmlspecialchars($vendor['country']) ?>" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label" for="category">Business Category*</label>
+                                <select name="category" id="category" class="form-control" style="width: 100%;" required>
+                                    <option value="" disabled <?= empty($vendor['category']) ? 'selected' : '' ?>>Select Category</option>
+                                    <option value="Furniture" <?= ($vendor['category'] === 'Furniture') ? 'selected' : '' ?>>Furniture</option>
+                                    <option value="IT" <?= ($vendor['category'] === 'IT') ? 'selected' : '' ?>>IT</option>
+                                    <option value="Constructions" <?= ($vendor['category'] === 'Constructions') ? 'selected' : '' ?>>Constructions</option>
+                                    <option value="Logistics" <?= ($vendor['category'] === 'Logistics') ? 'selected' : '' ?>>Logistics</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="gst_number">GST Number*</label>
+                                <input type="text" name="gst_number" id="gst_number" class="form-control" value="<?= htmlspecialchars($vendor['gst_number'] ?? '') ?>" placeholder="e.g. 27AAAAA1111A1Z1" required>
                             </div>
                         </div>
 

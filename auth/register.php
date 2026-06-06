@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } while (mysqli_num_rows($checkUsername) > 0);
 
-    // Insert user
+    // Insert user (status defaults to 'pending' – admin must approve before login)
     $sql = "INSERT INTO users (
             firstname,
             lastname,
@@ -86,7 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             phone,
             role,
             country,
-            description
+            description,
+            status
         )
         VALUES (
             '$firstname',
@@ -97,14 +98,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             '$phone',
             '$role',
             '$country',
-            '$description'
+            '$description',
+            'pending'
         )";
 
     if (mysqli_query($conn, $sql)) {
 
         $_SESSION['toast'] = [
-            'type' => 'success',
-            'message' => 'User created successfully'
+            'type'    => 'success',
+            'message' => 'Account created successfully. Approve it in User Approvals before the user can log in.'
         ];
 
         sendCredentialsMail($email, $firstname, $username, $username);

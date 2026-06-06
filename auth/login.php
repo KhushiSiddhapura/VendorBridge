@@ -34,6 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (password_verify($password, $user['password'])) {
 
+            if ($user['status'] !== 'approved') {
+                $msg = ($user['status'] === 'rejected') ? 'Your account has been rejected by the administrator.' : 'Your account is pending admin approval.';
+                $_SESSION['toast'] = [
+                    'type' => 'fail',
+                    'message' => $msg
+                ];
+                header('Location: ../login/login.php');
+                exit();
+            }
+
             $_SESSION['id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];

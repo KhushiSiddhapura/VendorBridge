@@ -118,7 +118,7 @@ $po_query = mysqli_query($conn, $sql);
     </header>
 
     <div class="app-layout">
-                <aside class="app-sidebar">
+                                <aside class="app-sidebar">
             <nav class="sidebar-nav">
                 <ul>
                     <?php
@@ -127,7 +127,8 @@ $po_query = mysqli_query($conn, $sql);
                     $active_vendors = (strpos($script, '/dashboard/adminDashboard/vendors/') !== false) ? 'active' : '';
                     $active_rfq = (strpos($script, '/dashboard/adminDashboard/RFQ/') !== false) ? 'active' : '';
                     $active_quotes = (strpos($script, '/dashboard/adminDashboard/quotations/') !== false) ? 'active' : '';
-                    $active_approvals = (strpos($script, '/dashboard/adminDashboard/approvals/') !== false) ? 'active' : '';
+                    $active_approvals = (strpos($script, '/dashboard/adminDashboard/approvals/') !== false && strpos($script, 'user_approvals.php') === false) ? 'active' : '';
+                    $active_user_approvals = (strpos($script, '/dashboard/adminDashboard/approvals/user_approvals.php') !== false) ? 'active' : '';
                     $active_po = (strpos($script, '/dashboard/adminDashboard/purchase_orders/') !== false) ? 'active' : '';
                     $active_invoices = (strpos($script, '/dashboard/adminDashboard/invoices/') !== false) ? 'active' : '';
                     $active_reports = (strpos($script, '/dashboard/adminDashboard/reports/') !== false) ? 'active' : '';
@@ -191,6 +192,12 @@ $po_query = mysqli_query($conn, $sql);
                         </a>
                     </li>
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                    <li class="<?= $active_user_approvals ?>">
+                        <a href="<?= $root ?>dashboard/adminDashboard/approvals/user_approvals.php">
+                            <span class="nav-icon">👥</span>
+                            User Approvals
+                        </a>
+                    </li>
                     <li class="<?= $active_register ?>">
                         <a href="<?= $root ?>register/register.php">
                             <span class="nav-icon">👤</span>
