@@ -1,55 +1,178 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register - CoupleTodo</title>
-    <link rel="stylesheet" href="register.css" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="left">
-        <h1>💖 CoupleTodo</h1>
-        <p>Create your account and start sharing tasks with your partner.</p>
-      </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Vendor Management System registration. Apply for a vendor account under admin or officer credentials.">
+    <title>Vendor Management System - Account Registration</title>
+    <!-- CSS stylesheet Link -->
+    <link rel="stylesheet" href="register.css">
+</head>
+<body>
 
-      <div class="right">
+    <!-- Main Container -->
+    <main class="vms-container">
 
-        <form class="form-card" method="POST" action="../auth/register.php">
-        
-            <h2>Create Account</h2>
+        <!-- Glassmorphic Registration Card -->
+        <section class="glass-panel register-panel">
+            <div class="split-container">
+                
+                <!-- Left Pane: Branding & Avatar Upload -->
+                <div class="pane-left">
+                    <header class="vms-header">
+                        <h1><span>Vendor</span> Portal</h1>
+                        <p class="header-desc">Registration & Onboarding Gateway</p>
+                    </header>
+                    
+                    <!-- Avatar Photo Upload Circle -->
+                    <div class="photo-upload-container">
+                        <div class="photo-circle" id="photoCircle" title="Click to upload profile photo">
+                            <svg id="photoPlaceholderIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                            <span id="photoPlaceholderText">Photo</span>
+                            <img id="photoPreview" class="photo-preview" src="" alt="Photo Preview">
+                        </div>
+                        <!-- Hidden file picker -->
+                        <input type="file" id="photoInput" class="photo-input" accept="image/*">
+                    </div>
+                </div>
 
-          <div class="input-group">
-            <label>username</label>
-            <input type="text" placeholder="Enter your name" name="username" />
-          </div>
+                <!-- Right Pane: Registration Form -->
+                <div class="pane-right">
+                    <h2 class="form-title">Registration Screen</h2>
+                    <p class="form-subtitle">Create a vendor profile to join the management console</p>
 
-          <div class="input-group">
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="Create password"
-              name="password"
-            />
-          </div>
+                    <form id="vmsRegisterForm" novalidate>
+                        <!-- Registration Grid of Fields (Side-by-Side and spans) -->
+                        <div class="form-grid">
+                            
+                            <!-- First Name -->
+                            <div class="form-group">
+                                <label class="form-label" for="vmsFirstName">First Name</label>
+                                <div class="input-container">
+                                    <input type="text" id="vmsFirstName" class="form-control" placeholder="e.g. Aarav" required autocomplete="given-name">
+                                    <div class="input-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
 
-          <div class="input-group">
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              placeholder="Confirm password"
-              name="confirm_password"
-            />
-          </div>
+                            <!-- Last Name (The empty field next to First Name in wireframe) -->
+                            <div class="form-group">
+                                <label class="form-label" for="vmsLastName">Last Name</label>
+                                <div class="input-container">
+                                    <input type="text" id="vmsLastName" class="form-control" placeholder="e.g. Sharma" required autocomplete="family-name">
+                                    <div class="input-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
 
-          <button type="submit">Create Couple Account</button>
+                            <!-- Email Address -->
+                            <div class="form-group">
+                                <label class="form-label" for="vmsEmail">Email Address</label>
+                                <div class="input-container">
+                                    <input type="email" id="vmsEmail" class="form-control" placeholder="e.g. aarav.sharma@domain.in" required autocomplete="email">
+                                    <div class="input-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                            <polyline points="22,6 12,13 2,6"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
 
-          <p class="bottom-text">
-            Already have an account?
-            <a href="../login/login.html">Login</a>
-          </p>
-        </form>
-      </div>
-    </div>
-  </body>
+                            <!-- Phone Number -->
+                            <div class="form-group">
+                                <label class="form-label" for="vmsPhone">Phone Number</label>
+                                <div class="input-container">
+                                    <input type="tel" id="vmsPhone" class="form-control" placeholder="e.g. +91 98765 43210" required autocomplete="tel">
+                                    <div class="input-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Role Selection (Procurement Officer, Vendor, Manager, Admin) -->
+                            <div class="form-group">
+                                <label class="form-label" for="vmsRole">Role</label>
+                                <div class="select-wrapper">
+                                    <select id="vmsRole" class="form-control" required>
+                                        <option value="" disabled selected hidden>Select Portal Role</option>
+                                        <option value="procurement_officer">Procurement Officer</option>
+                                        <option value="vendor">Vendor</option>
+                                        <option value="manager">Manager</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                    <div class="input-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Country -->
+                            <div class="form-group">
+                                <label class="form-label" for="vmsCountry">Country</label>
+                                <div class="input-container">
+                                    <input type="text" id="vmsCountry" class="form-control" placeholder="e.g. India" required>
+                                    <div class="input-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                            <circle cx="12" cy="10" r="3"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Information -->
+                            <div class="form-group grid-span-2">
+                                <label class="form-label" for="vmsInfo">Additional Information</label>
+                                <textarea id="vmsInfo" class="form-control" placeholder="e.g. GSTIN, PAN, or other business details..." rows="2"></textarea>
+                            </div>
+
+                        </div>
+
+                        <!-- Submit Action -->
+                        <button type="submit" class="btn btn-primary" id="registerBtn">
+                            Register
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="8.5" cy="7" r="4"/>
+                                <line x1="20" y1="8" x2="20" y2="14"/>
+                                <line x1="17" y1="11" x2="23" y2="11"/>
+                            </svg>
+                        </button>
+                    </form>
+
+                    <!-- Card Footer Switcher Link -->
+                    <footer class="form-footer">
+                        Already registered with VMS? 
+                        <a href="login.html" class="form-link">Login Here</a>
+                    </footer>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" aria-live="polite"></div>
+
+    <!-- JS Logic link -->
+    <script src="script.js"></script>
+</body>
 </html>
