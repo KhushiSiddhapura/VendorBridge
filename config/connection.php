@@ -3,7 +3,7 @@
 $hostname = "localhost";
 $username = "root";
 $password = "";
-$database = "coupletodo";
+$database = "vendorbridge";
 
 $conn = mysqli_connect($hostname, $username, $password, $database);
 
