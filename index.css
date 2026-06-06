@@ -2,57 +2,56 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
+    font-family:Segoe UI, sans-serif;
 }
 
 body{
-    min-height:100vh;
-    background:linear-gradient(
-        135deg,
-        #fff4f7,
-        #f8f3ff
-    );
-    color:#333;
+    background:#f5f7fb;
+    color:#1e293b;
 }
 
-/* NAVBAR */
-
 nav{
+    height:80px;
+    padding:0 8%;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:25px 8%;
+    background:white;
+    box-shadow:0 2px 10px rgba(0,0,0,.05);
 }
 
 .logo{
-    font-size:1.5rem;
+    font-size:1.7rem;
     font-weight:700;
-    color:#ff5c8d;
+    color:#2563eb;
+}
+
+.nav-links{
+    display:flex;
+    align-items:center;
+    gap:25px;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:#334155;
+    font-weight:500;
 }
 
 .login-btn{
-    text-decoration:none;
-    padding:12px 24px;
-    background:#ff5c8d;
-    color:white;
-    border-radius:50px;
-    transition:.3s;
+    background:#2563eb;
+    color:white !important;
+    padding:10px 18px;
+    border-radius:8px;
 }
-
-.login-btn:hover{
-    transform:translateY(-2px);
-    box-shadow:0 10px 25px rgba(255,92,141,.25);
-}
-
-/* HERO */
 
 .hero{
-    min-height:80vh;
+    min-height:85vh;
     display:flex;
     align-items:center;
     justify-content:space-between;
     padding:0 8%;
-    gap:60px;
+    gap:50px;
 }
 
 .hero-content{
@@ -61,12 +60,13 @@ nav{
 
 .tag{
     display:inline-block;
-    background:#ffe0eb;
-    color:#ff4f88;
-    padding:10px 18px;
-    border-radius:30px;
+    background:#dbeafe;
+    color:#2563eb;
+    padding:8px 14px;
+    border-radius:50px;
     font-size:.9rem;
-    margin-bottom:25px;
+    font-weight:600;
+    margin-bottom:20px;
 }
 
 .hero-content h1{
@@ -76,11 +76,11 @@ nav{
 }
 
 .hero-content p{
+    color:#64748b;
     font-size:1.1rem;
-    color:#666;
-    max-width:550px;
+    max-width:600px;
     line-height:1.7;
-    margin-bottom:35px;
+    margin-bottom:30px;
 }
 
 .buttons{
@@ -91,88 +91,83 @@ nav{
 .primary-btn,
 .secondary-btn{
     text-decoration:none;
-    padding:15px 30px;
-    border-radius:50px;
+    padding:14px 24px;
+    border-radius:10px;
     font-weight:600;
-    transition:.3s;
 }
 
 .primary-btn{
-    background:#ff5c8d;
+    background:#2563eb;
     color:white;
 }
 
 .secondary-btn{
-    background:white;
-    color:#444;
+    border:1px solid #cbd5e1;
+    color:#1e293b;
 }
-
-.primary-btn:hover,
-.secondary-btn:hover{
-    transform:translateY(-3px);
-}
-
-/* RIGHT SIDE */
 
 .hero-card{
-    flex:1;
+    width:420px;
     display:flex;
     flex-direction:column;
+    gap:20px;
+}
+
+.stat-card{
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+
+.stat-card h3{
+    color:#2563eb;
+    font-size:2rem;
+    margin-bottom:10px;
+}
+
+.stat-card p{
+    color:#64748b;
+}
+
+.features{
+    padding:80px 8%;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
     gap:25px;
 }
 
-.task-card{
+.feature{
     background:white;
-    padding:25px;
-    border-radius:25px;
-    box-shadow:0 20px 40px rgba(0,0,0,.06);
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 5px 20px rgba(0,0,0,.05);
 }
 
-.partner{
-    margin-left:60px;
+.feature h3{
+    margin-bottom:15px;
+    color:#2563eb;
 }
 
-.task-card h3{
-    margin-bottom:20px;
-    color:#ff5c8d;
+.feature p{
+    color:#64748b;
+    line-height:1.6;
 }
-
-.task{
-    padding:12px;
-    background:#fafafa;
-    border-radius:12px;
-    margin-bottom:12px;
-}
-
-.completed{
-    background:#e7fff0;
-    color:#2f9c61;
-}
-
-.status{
-    margin-top:15px;
-    font-weight:600;
-}
-
-/* RESPONSIVE */
 
 @media(max-width:900px){
 
     .hero{
         flex-direction:column;
         text-align:center;
-        padding:30px;
+        padding:60px 8%;
     }
 
     .hero-content h1{
         font-size:2.8rem;
     }
 
-    .buttons{
-        justify-content:center;
+    .hero-card{
+        width:100%;
     }
 
-    .partner{
-        margin-left:0;
-    }
 }

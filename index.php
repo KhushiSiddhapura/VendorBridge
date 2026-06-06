@@ -1,84 +1,95 @@
-<?php
-session_start();
-?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoupleTodo</title>
+    <title>VendorBridge | Vendor Management System</title>
     <link rel="stylesheet" href="index.css">
 </head>
-
 <body>
 
     <nav>
         <div class="logo">
-            ❤️ CoupleTodo
+            VendorBridge
         </div>
 
-        <a href="./login/login.html" class="login-btn">Login</a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#about">About</a>
+            <a href="./login/login.html" class="login-btn">Login</a>
+        </div>
     </nav>
 
     <section class="hero">
 
         <div class="hero-content">
-            <span class="tag">Made for Couples</span>
+
+            <span class="tag">
+                Smart Vendor Management
+            </span>
 
             <h1>
-                Stay Connected,<br>
-                Even Through Tasks
+                Connect Vendors,<br>
+                Procurement Teams & Decisions
             </h1>
 
             <p>
-                Share tasks, track each other's schedules,
-                know when your partner is free, and achieve
-                goals together.
+                Streamline vendor onboarding, approvals,
+                procurement workflows, document management,
+                and communication from one centralized platform.
             </p>
 
             <div class="buttons">
-                <a href="./login/login.html" class="primary-btn">Get Started</a>
-                <a href="#" class="secondary-btn">Learn More</a>
+                <a href="./login/login.html" class="primary-btn">
+                    Access Portal
+                </a>
+
+                <a href="#features" class="secondary-btn">
+                    Explore Features
+                </a>
             </div>
+
         </div>
 
         <div class="hero-card">
 
-            <div class="task-card">
-                <h3>Nidhish's Tasks</h3>
-
-                <div class="task completed">
-                    ✓ Finish Project
-                </div>
-
-                <div class="task">
-                    Study DSA
-                </div>
+            <div class="stat-card">
+                <h3>245+</h3>
+                <p>Registered Vendors</p>
             </div>
 
-            <div class="task-card partner">
-                <h3>khushu's Tasks</h3>
+            <div class="stat-card">
+                <h3>78</h3>
+                <p>Active Procurements</p>
+            </div>
 
-                <div class="task">
-                    Gym Session
-                </div>
-
-                <div class="task completed">
-                    ✓ Leetcode
-                </div>
-
-                <p class="status">
-                    🟢 Free after 7 PM
-                </p>
+            <div class="stat-card">
+                <h3>96%</h3>
+                <p>Approval Efficiency</p>
             </div>
 
         </div>
 
     </section>
 
+    <section id="features" class="features">
+
+        <div class="feature">
+            <h3>Vendor Registration</h3>
+            <p>Centralized vendor onboarding and profile management.</p>
+        </div>
+
+        <div class="feature">
+            <h3>Procurement Tracking</h3>
+            <p>Track requests, approvals and procurement status.</p>
+        </div>
+
+        <div class="feature">
+            <h3>Role-Based Access</h3>
+            <p>Separate dashboards for Admins, Vendors and Officers.</p>
+        </div>
+
+    </section>
 
 </body>
-
 </html>
