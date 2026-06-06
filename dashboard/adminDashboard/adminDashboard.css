@@ -311,12 +311,6 @@ body.menu-open .menu-backdrop {
 }
 
 /* Recent Purchase Orders Table */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
 .orders-table {
     width: 100%;
     border-collapse: collapse;
@@ -549,33 +543,6 @@ body.menu-open .menu-backdrop {
     .dashboard-split {
         grid-template-columns: 1fr;
     }
-    
-    .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 900px) {
-    /* Stack trends charts vertically to fit mid-range viewports cleanly */
-    .trends-visual-container {
-        flex-direction: column;
-        gap: 1.5rem;
-        align-items: stretch;
-        height: auto;
-    }
-    
-    .trends-left {
-        width: 100%;
-        flex: none;
-        border-bottom: 1px solid var(--panel-border);
-        padding-bottom: 1.5rem;
-    }
-    
-    .trends-right {
-        width: 100%;
-        flex: none;
-        padding-top: 0.5rem;
-    }
 }
 
 @media (max-width: 768px) {
@@ -653,7 +620,29 @@ body.menu-open .menu-backdrop {
     }
     
     .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+    }
+    
+    /* Trends Layout stack vertically to fit phone viewports */
+    .trends-visual-container {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+        height: auto;
+    }
+    
+    .trends-left {
+        width: 100%;
+        flex: none;
+        border-bottom: 1px solid var(--panel-border);
+        padding-bottom: 1.5rem;
+    }
+    
+    .trends-right {
+        width: 100%;
+        flex: none;
+        padding-top: 0.5rem;
     }
     
     /* Compact table columns and prevent wrapping on mobile screens */
