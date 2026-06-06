@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => 'User created successfully'
         ];
 
-        sendCredentialsMail($email, $firstname, $username, $hashedPassword);
+        sendCredentialsMail($email, $firstname, $username, $username);
 
         header('Location: ../dashboard/dashboard.html');
         exit();
