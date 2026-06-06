@@ -1,5 +1,92 @@
+<?php
+session_start();
+
+require '../../../config/connection.php';
+require_once '../../../services/mailService.php';
+
+// ==========================================
+// PART 1: POST SUBMISSION PROCESSING HANDLER
+// ==========================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Generate a unique RFQ number for the background entry
+    $rfq_number = 'RFQ-' . date('Y') . '-' . rand(1000, 9999);
+
+    // Sanitize basic form text parameters
+    $title       = mysqli_real_escape_string($conn, $_POST['rfq_title']);
+    $category    = mysqli_real_escape_string($conn, $_POST['category']);
+    $deadline    = mysqli_real_escape_string($conn, $_POST['submission_deadline']);
+    $description = mysqli_real_escape_string($conn, $_POST['description']);
+    $status      = mysqli_real_escape_string($conn, $_POST['workflow_status']);
+
+    // Clean up empty form entries before encoding arrays
+    $filtered_items      = [];
+    $filtered_quantities = [];
+    $filtered_units      = [];
+
+    if (isset($_POST['items']) && is_array($_POST['items'])) {
+        for ($i = 0; $i < count($_POST['items']); $i++) {
+            $item_name = trim($_POST['items'][$i]);
+            if (!empty($item_name)) {
+                $filtered_items[]      = $item_name;
+                $filtered_quantities[] = (int)$_POST['quantities'][$i];
+                $filtered_units[]      = trim($_POST['units'][$i]);
+            }
+        }
+    }
+
+    // Convert arrays into structured JSON strings for single row storage
+    $json_items      = mysqli_real_escape_string($conn, json_encode($filtered_items));
+    $json_quantities = mysqli_real_escape_string($conn, json_encode($filtered_quantities));
+    $json_units      = mysqli_real_escape_string($conn, json_encode($filtered_units));
+
+    // Handle assigned vendors transformation array mapping
+    $vendor_array = isset($_POST['assigned_vendors']) && is_array($_POST['assigned_vendors']) ? array_map('intval', $_POST['assigned_vendors']) : [];
+    $json_vendors = mysqli_real_escape_string($conn, json_encode($vendor_array));
+
+    // Insert everything cleanly down into your single parent table 
+    $rfq_query = "INSERT INTO rfqs (rfq_number, title, category, submission_deadline, description, items, quantities, units, assigned_vendors, status) 
+                  VALUES ('$rfq_number', '$title', '$category', '$deadline', '$description', '$json_items', '$json_quantities', '$json_units', '$json_vendors', '$status')";
+
+    if (mysqli_query($conn, $rfq_query)) {
+
+        // Send RFQ email to each assigned vendor
+        if (!empty($vendor_array)) {
+            foreach ($vendor_array as $vendor_id) {
+                $vResult = mysqli_query($conn, "SELECT firstname, email FROM users WHERE id = $vendor_id");
+                if ($vResult && $vendor = mysqli_fetch_assoc($vResult)) {
+                    sendRFQMail(
+                        $vendor['email'],
+                        $vendor['firstname'],
+                        $rfq_number,
+                        $title,
+                        $category,
+                        $deadline,
+                        $description,
+                        $filtered_items,
+                        $filtered_quantities,
+                        $filtered_units
+                    );
+                }
+            }
+        }
+
+        header("Location: rfq_list.php?success=1");
+        exit();
+    } else {
+        $error_message = "Database Save Failure: " . mysqli_error($conn);
+    }
+}
+
+// ==========================================
+// PART 2: INITIAL PAGE LOAD QUERY FETCHES
+// ==========================================
+// Fetch active registered vendor profiles directly from your database
+$vendors_query = mysqli_query($conn, "SELECT id, firstname, lastname FROM users WHERE role = 'vendor' ORDER BY firstname ASC");
+?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +94,11 @@
     <title>VendorBridge - Create RFQ</title>
     <link rel="stylesheet" href="rfq.css">
 </head>
+
 <body>
 
-    <!-- Mobile Menu Backdrop -->
     <div class="menu-backdrop" id="menuBackdrop"></div>
 
-    <!-- Header Bar -->
     <header class="dash-header">
         <div class="header-left">
             <button class="menu-toggle-btn" id="btnMenuToggle" aria-label="Toggle Menu">
@@ -33,34 +119,32 @@
             <span class="avatar-initial color-g" title="Guest">G</span>
             <div class="user-avatar-circle" title="User Profile">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
                 </svg>
             </div>
         </div>
     </header>
 
-    <!-- App Main Layout -->
     <div class="app-layout">
-        
-        <!-- Sidebar Navigation -->
+
         <aside class="app-sidebar">
             <nav class="sidebar-nav">
                 <ul>
                     <li>
-                        <a href="landingpage.html">
+                        <a href="../dashboard/adminDashboard.php">
                             <span class="nav-icon">📊</span>
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="vendor.html">
+                        <a href="../vendors/vendors.php">
                             <span class="nav-icon">🤝</span>
                             Vendors
                         </a>
                     </li>
                     <li class="active">
-                        <a href="rfq.html">
+                        <a href="../RFQ/rfq.php">
                             <span class="nav-icon">📝</span>
                             RFQ's
                         </a>
@@ -105,56 +189,58 @@
             </nav>
         </aside>
 
-        <!-- Main Content Panel -->
         <main class="app-content">
-            
-            <!-- Welcome Header -->
+
             <section class="content-header">
                 <h1 class="welcome-title">Create RFQ's</h1>
                 <p class="welcome-subtitle">new request for quotation</p>
+
+                <?php if (isset($error_message)): ?>
+                    <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 6px; margin-top: 1rem;">
+                        <strong>Error:</strong> <?= htmlspecialchars($error_message) ?>
+                    </div>
+                <?php endif; ?>
             </section>
 
+            <form class="rfq-form" id="rfqForm" action="rfq.php" method="POST" enctype="multipart/form-data">
 
-            <!-- Form Split Grid Layout -->
-            <form class="rfq-form" id="rfqForm" onsubmit="event.preventDefault();">
+                <input type="hidden" name="workflow_status" id="workflowStatus" value="Published">
+
                 <div class="form-grid">
-                    
-                    <!-- Left Form Section (RFQ Info) -->
+
                     <div class="form-panel-left">
                         <div class="form-group">
                             <label class="form-label" for="rfqTitle">RFQ's title*</label>
-                            <input type="text" class="form-control" id="rfqTitle" required value="Office Furniture procurement Q2">
+                            <input type="text" class="form-control" name="rfq_title" id="rfqTitle" required placeholder="e.g., Office Furniture procurement Q2">
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label" for="rfqCategory">Category</label>
-                            <select class="form-control" id="rfqCategory">
-                                <option value="Furniture" selected>Furniture</option>
+                            <select class="form-control" name="category" id="rfqCategory">
+                                <option value="Furniture">Furniture</option>
                                 <option value="IT">IT</option>
                                 <option value="Constructions">Constructions</option>
                                 <option value="Logistics">Logistics</option>
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label" for="rfqDeadline">Deadline*</label>
-                            <input type="date" class="form-control" id="rfqDeadline" required value="2025-06-15">
+                            <input type="date" class="form-control" name="submission_deadline" id="rfqDeadline" min="<?= date('Y-m-d') ?>" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label" for="rfqDescription">Description</label>
-                            <textarea class="form-control textarea-control" id="rfqDescription" placeholder="Enter Description">Ergonomic chairs and standing desks for 3rd floor</textarea>
+                            <textarea class="form-control textarea-control" name="description" id="rfqDescription" placeholder="Enter Description parameters..."></textarea>
                         </div>
                     </div>
 
-                    <!-- Right Form Section (Line Items & Vendors) -->
                     <div class="form-panel-right">
-                        
-                        <!-- Line Items Card Area -->
+
                         <div class="form-section-card">
                             <h3 class="section-card-title">Line items</h3>
                             <div class="table-responsive">
-                                <table class="line-items-table">
+                                <table class="line-items-table" id="lineItemsTable">
                                     <thead>
                                         <tr>
                                             <th>item</th>
@@ -164,14 +250,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td><input type="text" class="table-input" value="Ergonomic chair" placeholder="Item name"></td>
-                                            <td><input type="number" class="table-input qty-input" value="25" placeholder="Qty"></td>
-                                            <td><input type="text" class="table-input unit-input" value="NOS" placeholder="Unit"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><input type="text" class="table-input" value="Standing desks" placeholder="Item name"></td>
-                                            <td><input type="number" class="table-input qty-input" value="10" placeholder="Qty"></td>
-                                            <td><input type="text" class="table-input unit-input" value="NOS" placeholder="Unit"></td>
+                                            <td><input type="text" name="items[]" class="table-input" required placeholder="Item name"></td>
+                                            <td><input type="number" name="quantities[]" class="table-input qty-input" required min="1" placeholder="Qty"></td>
+                                            <td><input type="text" name="units[]" class="table-input unit-input" required placeholder="Unit (e.g. NOS)"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -181,33 +262,36 @@
                             </button>
                         </div>
 
-                        <!-- Assigned Vendors Area -->
                         <div class="form-section-card">
                             <h3 class="section-card-title">ASSIGN VENDORS</h3>
-                            <div class="vendors-list-container">
-                                <div class="assigned-vendor-row">
-                                    <span class="vendor-row-name">Infra Supplies Pvt Ltd</span>
-                                    <button type="button" class="btn-remove-vendor" aria-label="Remove Vendor">&times;</button>
-                                </div>
-                                <div class="assigned-vendor-row">
-                                    <span class="vendor-row-name">Techcore LTD</span>
-                                    <button type="button" class="btn-remove-vendor" aria-label="Remove Vendor">&times;</button>
-                                </div>
+
+                            <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+                                <select class="form-control" id="vendorSelectPicker" style="flex: 1;">
+                                    <option value="" disabled selected>Choose vendor</option>
+                                    <?php if ($vendors_query && mysqli_num_rows($vendors_query) > 0): ?>
+                                        <?php while ($vendor = mysqli_fetch_assoc($vendors_query)): ?>
+                                            <option value="<?= $vendor['id'] ?>" data-name="<?= htmlspecialchars($vendor['firstname'] . ' ' . $vendor['lastname']) ?>">
+                                                <?= htmlspecialchars($vendor['firstname'] . ' ' . $vendor['lastname']) ?>
+                                            </option>
+                                        <?php endwhile; ?>
+                                    <?php else: ?>
+                                        <option value="" disabled>No active vendors found in system</option>
+                                    <?php endif; ?>
+                                </select>
+                                <button type="button" class="btn btn-sm btn-outline" id="btnAddVendor" style="white-space: nowrap;">
+                                    <span class="btn-icon">+</span> add vendor
+                                </button>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline" id="btnAddVendor">
-                                <span class="btn-icon">+</span> add vendor
-                            </button>
+
+                            <div class="vendors-list-container" id="assignedVendorsDeck"></div>
                         </div>
 
                     </div>
                 </div>
 
-                <!-- Horizontal Divider Line -->
                 <hr class="form-divider">
 
-                <!-- Footer Action & Attachments Panel -->
                 <div class="form-footer">
-                    <!-- Left Action Column -->
                     <div class="footer-actions">
                         <button type="submit" class="btn btn-primary" id="btnSendRFQ">
                             Save & Send to Vendors
@@ -217,15 +301,14 @@
                         </button>
                     </div>
 
-                    <!-- Right Attachments Card -->
                     <div class="footer-attachments">
                         <span class="form-label">Attachments</span>
                         <div class="upload-dropzone" id="dropzone">
                             <div class="dropzone-content">
                                 <span class="upload-icon">📁</span>
-                                <span class="upload-text">Drag & drop files or click to upload</span>
+                                <span class="upload-text" id="dropzoneText">Drag & drop files or click to upload</span>
                             </div>
-                            <input type="file" id="fileUpload" style="display: none;" multiple>
+                            <input type="file" name="rfq_attachments[]" id="fileUpload" style="display: none;" multiple>
                         </div>
                     </div>
                 </div>
@@ -234,7 +317,6 @@
         </main>
     </div>
 
-    <!-- Toggle Navigation Script for Mobile Hamburger Menu -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const btnMenuToggle = document.getElementById('btnMenuToggle');
@@ -246,28 +328,98 @@
                     e.preventDefault();
                     body.classList.toggle('menu-open');
                 };
-
                 btnMenuToggle.addEventListener('click', toggleMenu);
                 menuBackdrop.addEventListener('click', toggleMenu);
+            }
 
-                // Close menu drawer if navigation link is clicked
-                const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
-                sidebarLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        body.classList.remove('menu-open');
-                    });
+            const btnAddLineItem = document.getElementById('btnAddLineItem');
+            const lineItemsTableBody = document.getElementById('lineItemsTable').getElementsByTagName('tbody')[0];
+
+            btnAddLineItem.addEventListener('click', () => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td><input type="text" name="items[]" class="table-input" required placeholder="Item name"></td>
+                    <td><input type="number" name="quantities[]" class="table-input qty-input" required min="1" placeholder="Qty"></td>
+                    <td><input type="text" name="units[]" class="table-input unit-input" required placeholder="Unit"></td>
+                `;
+                lineItemsTableBody.appendChild(newRow);
+            });
+
+            const btnAddVendor = document.getElementById('btnAddVendor');
+            const vendorSelectPicker = document.getElementById('vendorSelectPicker');
+            const assignedVendorsDeck = document.getElementById('assignedVendorsDeck');
+
+            btnAddVendor.addEventListener('click', () => {
+                const selectedOption = vendorSelectPicker.options[vendorSelectPicker.selectedIndex];
+                const vendorId = vendorSelectPicker.value;
+                const vendorName = selectedOption.getAttribute('data-name');
+
+                if (!vendorId) {
+                    alert('Please select a valid vendor first.');
+                    return;
+                }
+
+                if (document.getElementById(`assigned-v-${vendorId}`)) {
+                    alert('This vendor is already added to this RFQ workflow selection.');
+                    return;
+                }
+
+                const vendorCard = document.createElement('div');
+                vendorCard.className = 'assigned-vendor-row';
+                vendorCard.id = `assigned-v-${vendorId}`;
+                vendorCard.innerHTML = `
+                    <input type="hidden" name="assigned_vendors[]" value="${vendorId}">
+                    <span class="vendor-row-name">${vendorName}</span>
+                    <button type="button" class="btn-remove-vendor" aria-label="Remove Vendor">&times;</button>
+                `;
+
+                vendorCard.querySelector('.btn-remove-vendor').addEventListener('click', () => {
+                    vendorCard.remove();
+                });
+
+                assignedVendorsDeck.appendChild(vendorCard);
+                vendorSelectPicker.selectedIndex = 0;
+            });
+
+            const dropzone = document.getElementById('dropzone');
+            const fileUpload = document.getElementById('fileUpload');
+            const dropzoneText = document.getElementById('dropzoneText');
+
+            if (dropzone && fileUpload) {
+                dropzone.addEventListener('click', () => fileUpload.click());
+                fileUpload.addEventListener('change', () => {
+                    if (fileUpload.files.length > 0) {
+                        dropzoneText.textContent = `✓ Attached ${fileUpload.files.length} document(s)`;
+                        dropzoneText.style.color = '#2563eb';
+                    }
                 });
             }
 
-            // Dropzone click trigger
-            const dropzone = document.getElementById('dropzone');
-            const fileUpload = document.getElementById('fileUpload');
-            if (dropzone && fileUpload) {
-                dropzone.addEventListener('click', () => {
-                    fileUpload.click();
+            // Locate these lines near the bottom of your file inside DOMContentLoaded
+            const rfqForm = document.getElementById('rfqForm');
+            const workflowStatus = document.getElementById('workflowStatus');
+            const btnDraftRFQ = document.getElementById('btnDraftRFQ');
+
+            if (btnDraftRFQ && rfqForm && workflowStatus) {
+                btnDraftRFQ.addEventListener('click', (e) => {
+                    // Prevent default action if any exists
+                    e.preventDefault();
+
+                    // 1. Temporarily disable 'required' attributes so an incomplete/partial draft can save successfully
+                    const requiredInputs = rfqForm.querySelectorAll('[required]');
+                    requiredInputs.forEach(input => {
+                        input.removeAttribute('required');
+                    });
+
+                    // 2. Flip status flag to Draft
+                    workflowStatus.value = 'Draft';
+
+                    // 3. Programmatically force form validation submission bypass
+                    rfqForm.submit();
                 });
             }
         });
     </script>
 </body>
+
 </html>
