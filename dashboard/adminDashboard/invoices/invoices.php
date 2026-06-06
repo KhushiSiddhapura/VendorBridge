@@ -1,21 +1,27 @@
 <?php
-session_start();
+require_once '../../../auth/session_helper.php';
+require_once '../../../config/connection.php';
+requireRoles(['admin', 'procurement_officer']);
 
-// Import system database connection parameter
-require '../../../config/connection.php';
-
-// Fetch all created RFQs sorted by the newest first
-$rfq_query = mysqli_query($conn, "SELECT * FROM rfqs ORDER BY created_at DESC");
+// Fetch all Invoices
+$sql = "SELECT i.*, po.po_number, u.firstname, u.lastname 
+        FROM invoices i 
+        JOIN purchase_orders po ON i.po_id = po.id 
+        JOIN quotations q ON po.quotation_id = q.id 
+        JOIN users u ON q.vendor_id = u.id 
+        ORDER BY i.created_at DESC";
+$invoices_query = mysqli_query($conn, $sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VendorBridge - RFQ Directory</title>
-    <link rel="stylesheet" href="rfq.css">
+    <title>VendorBridge - Invoices Directory</title>
+    <link rel="stylesheet" href="../RFQ/rfq.css">
+    <link rel="stylesheet" href="../../toaster/toaster.css">
+    <script src="../../toaster/toaster.js"></script>
     <style>
-        /* Custom enhancements for the table view dashboard layer */
         .rfq-table {
             width: 100%;
             border-collapse: separate;
@@ -41,10 +47,6 @@ $rfq_query = mysqli_query($conn, "SELECT * FROM rfqs ORDER BY created_at DESC");
             color: var(--text-body);
             font-size: 0.9rem;
             border-bottom: 1px solid var(--panel-border);
-            vertical-align: top;
-        }
-        .rfq-table tr:last-child td {
-            border-bottom: none;
         }
         .badge {
             display: inline-block;
@@ -53,21 +55,9 @@ $rfq_query = mysqli_query($conn, "SELECT * FROM rfqs ORDER BY created_at DESC");
             font-size: 0.75rem;
             font-weight: 600;
         }
-        .badge-published { background-color: #ecfdf5; color: #059669; }
-        .badge-draft { background-color: #f1f5f9; color: #64748b; }
-        
-        .nested-items-list {
-            margin: 0;
-            padding-left: 1.2rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        .top-action-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
+        .badge-unpaid { background-color: #fef3c7; color: #d97706; }
+        .badge-paid { background-color: #ecfdf5; color: #059669; }
+        .badge-overdue { background-color: #fee2e2; color: #dc2626; }
     </style>
 </head>
 <body>
@@ -133,80 +123,67 @@ $rfq_query = mysqli_query($conn, "SELECT * FROM rfqs ORDER BY created_at DESC");
                 <ul>
                     <li><a href="../dashboard/adminDashboard.php"><span class="nav-icon">📊</span> Dashboard</a></li>
                     <li><a href="../vendors/vendors.php"><span class="nav-icon">🤝</span> Vendors</a></li>
-                    <li class="active"><a href="rfq.php"><span class="nav-icon">📝</span> RFQ's</a></li>
+                    <li><a href="../RFQ/rfq_list.php"><span class="nav-icon">📝</span> RFQ's</a></li>
+                    <li><a href="../quotations/quotations.php"><span class="nav-icon">📁</span> Quotations</a></li>
+                    <li><a href="../approvals/approvals.php"><span class="nav-icon">✅</span> Approvals</a></li>
+                    <li><a href="../purchase_orders/po_list.php"><span class="nav-icon">📦</span> Purchase orders</a></li>
+                    <li class="active"><a href="./invoices.php"><span class="nav-icon">🧾</span> Invoices</a></li>
+                    <li><a href="../reports/reports.php"><span class="nav-icon">📈</span> Reports</a></li>
+                    <li><a href="../activity/activity.php"><span class="nav-icon">🔔</span> Activity</a></li>
+                    <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <li><a href="../../../register/register.php"><span class="nav-icon">👤</span> Add Account</a></li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         </aside>
 
         <main class="app-content">
             <section class="content-header">
-                <div class="top-action-bar">
-                    <div>
-                        <h1 class="welcome-title">RFQ Management</h1>
-                        <p class="welcome-subtitle">Overview of your issued requests for quotations</p>
-                    </div>
-                    <a href="rfq.php" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
-                        <span>+</span> Create New RFQ
-                    </a>
-                </div>
-
-                <?php if (isset($_GET['success'])): ?>
-                    <div style="background-color: #ecfdf5; color: #065f46; padding: 1rem; border-radius: 6px; margin-top: 1rem; border: 1px solid #a7f3d0;">
-                        <strong>Success!</strong> Your Request for Quotation structure was saved flawlessly inside the database.
-                    </div>
-                <?php endif; ?>
+                <h1 class="welcome-title">Invoices</h1>
+                <p class="welcome-subtitle">Overview of client billing and invoice statuses</p>
             </section>
 
             <table class="rfq-table">
                 <thead>
                     <tr>
-                        <th>RFQ Number</th>
-                        <th>Title / Category</th>
-                        <th>Deadline</th>
-                        <th>Requested Line Items</th>
-                        <th>Workflow Status</th>
+                        <th>Invoice Number</th>
+                        <th>PO Reference</th>
+                        <th>Vendor Name</th>
+                        <th>Subtotal</th>
+                        <th>Tax (GST 18%)</th>
+                        <th>Grand Total</th>
+                        <th>Date Created</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if ($rfq_query && mysqli_num_rows($rfq_query) > 0): ?>
-                        <?php while ($row = mysqli_fetch_assoc($rfq_query)): 
-                            // Unpacking the structured JSON rows back into readable arrays
-                            $items      = json_decode($row['items'], true) ?: [];
-                            $quantities = json_decode($row['quantities'], true) ?: [];
-                            $units      = json_decode($row['units'], true) ?: [];
-                            
-                            $status_class = ($row['status'] === 'Published') ? 'badge-published' : 'badge-draft';
+                    <?php if ($invoices_query && mysqli_num_rows($invoices_query) > 0): ?>
+                        <?php while ($row = mysqli_fetch_assoc($invoices_query)): 
+                            $status_class = 'badge-unpaid';
+                            if ($row['status'] === 'Paid') $status_class = 'badge-paid';
+                            if ($row['status'] === 'Overdue') $status_class = 'badge-overdue';
                         ?>
                             <tr>
-                                <td><strong><?= htmlspecialchars($row['rfq_number']) ?></strong></td>
-                                <td>
-                                    <span style="font-weight: 600; display:block; color: var(--text-title);"><?= htmlspecialchars($row['title']) ?></span>
-                                    <small style="color: var(--text-muted); font-size: 0.75rem;"><?= htmlspecialchars($row['category']) ?></small>
-                                </td>
-                                <td><span style="color: #b91c1c; font-weight: 500;"><?= date('M d, Y', strtotime($row['submission_deadline'])) ?></span></td>
-                                <td>
-                                    <?php if (!empty($items)): ?>
-                                        <ul class="nested-items-list">
-                                            <?php for ($i = 0; $i < count($items); $i++): ?>
-                                                <li>
-                                                    <?= htmlspecialchars($items[$i]) ?> 
-                                                    (<strong><?= htmlspecialchars($quantities[$i]) ?> <?= htmlspecialchars($units[$i]) ?></strong>)
-                                                </li>
-                                            <?php endfor; ?>
-                                        </ul>
-                                    <?php else: ?>
-                                        <span style="color: var(--text-muted); font-style: italic;">No line items declared</span>
-                                    <?php endif; ?>
-                                </td>
+                                <td><strong><?= htmlspecialchars($row['invoice_number']) ?></strong></td>
+                                <td><?= htmlspecialchars($row['po_number']) ?></td>
+                                <td><?= htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) ?></td>
+                                <td>₹ <?= number_format($row['subtotal']) ?></td>
+                                <td>₹ <?= number_format($row['tax_amount']) ?></td>
+                                <td><strong>₹ <?= number_format($row['grand_total']) ?></strong></td>
+                                <td><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
                                 <td>
                                     <span class="badge <?= $status_class ?>"><?= htmlspecialchars($row['status']) ?></span>
+                                </td>
+                                <td>
+                                    <a href="invoice_details.php?id=<?= $row['id'] ?>" class="btn btn-action" style="text-decoration:none; display:inline-block; font-size:0.85rem; padding:6px 12px;">Open Details</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 3rem 0;">
-                                No Request for Quotation configurations logged in system database.
+                            <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem 0;">
+                                No Invoices found in the database.
                             </td>
                         </tr>
                     <?php endif; ?>

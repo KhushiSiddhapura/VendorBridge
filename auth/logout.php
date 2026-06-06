@@ -4,7 +4,7 @@ session_start();
 $_SESSION = [];
 session_destroy();
 
-header('Location: /coupletodo/index.php');
+header('Location: ../index.php');
 exit();
 
 ?>

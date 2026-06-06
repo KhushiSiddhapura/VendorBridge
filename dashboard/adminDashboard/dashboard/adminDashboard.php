@@ -1,5 +1,27 @@
 <?php
-session_start();
+require_once '../../../auth/session_helper.php';
+require_once '../../../config/connection.php';
+requireRoles(['admin', 'procurement_officer']);
+
+// Fetch active RFQs count
+$active_rfqs_res = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM rfqs WHERE status = 'Published'");
+$active_rfqs = mysqli_fetch_assoc($active_rfqs_res)['cnt'] ?? 0;
+
+// Fetch pending approvals count
+$pending_app_res = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM quotations WHERE status = 'Submitted' OR status = 'L1_Reviewed'");
+$pending_app = mysqli_fetch_assoc($pending_app_res)['cnt'] ?? 0;
+
+// Fetch POs this month
+$po_month_res = mysqli_query($conn, "SELECT SUM(grand_total) as total FROM purchase_orders WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())");
+$po_month = mysqli_fetch_assoc($po_month_res)['total'] ?? 0;
+$po_month_formatted = '₹ ' . ($po_month >= 100000 ? number_format($po_month / 100000, 1) . 'L' : number_format($po_month));
+
+// Fetch pending payments
+$pending_pay_res = mysqli_query($conn, "SELECT COUNT(*) as cnt FROM invoices WHERE status = 'Unpaid'");
+$pending_pay = mysqli_fetch_assoc($pending_pay_res)['cnt'] ?? 0;
+
+// Fetch recent POs
+$recent_pos = mysqli_query($conn, "SELECT po.po_number, u.firstname, u.lastname, po.grand_total, po.status FROM purchase_orders po JOIN quotations q ON po.quotation_id = q.id JOIN users u ON q.vendor_id = u.id ORDER BY po.created_at DESC LIMIT 3");
 ?>
 
 <!DOCTYPE html>
@@ -19,7 +41,7 @@ session_start();
     <div class="menu-backdrop" id="menuBackdrop"></div>
 
     <!-- Header Bar -->
-    <header class="dash-header">
+        <header class="dash-header">
         <div class="header-left">
             <button class="menu-toggle-btn" id="btnMenuToggle" aria-label="Toggle Menu">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -32,17 +54,43 @@ session_start();
                 <span>Vendor</span>Bridge
             </div>
         </div>
+        
+        <?php
+        $role_class = 'color-g';
+        if (isset($_SESSION['role'])) {
+            if ($_SESSION['role'] === 'admin') $role_class = 'color-a';
+            elseif ($_SESSION['role'] === 'manager') $role_class = 'color-m';
+            elseif ($_SESSION['role'] === 'procurement_officer') $role_class = 'color-s';
+        }
+        $logout_path = 'auth/logout.php';
+        $current_uri = $_SERVER['SCRIPT_NAME'];
+        if (strpos($current_uri, '/dashboard/adminDashboard/') !== false) {
+            $logout_path = '../../../auth/logout.php';
+        } elseif (strpos($current_uri, '/dashboard/') !== false) {
+            $logout_path = '../../auth/logout.php';
+        } elseif (strpos($current_uri, '/register/') !== false || strpos($current_uri, '/login/') !== false) {
+            $logout_path = '../auth/logout.php';
+        }
+        ?>
         <div class="header-profile-group">
-            <span class="avatar-initial color-m" title="Manager">M</span>
-            <span class="avatar-initial color-a" title="Admin">A</span>
-            <span class="avatar-initial color-s" title="Supervisor">S</span>
-            <span class="avatar-initial color-g" title="Guest">G</span>
-            <div class="user-avatar-circle" title="User Profile">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                </svg>
-            </div>
+            <?php if (isset($_SESSION['role'])): ?>
+                <span class="avatar-initial <?= $role_class ?>" title="Profile: <?= htmlspecialchars($_SESSION['role']) ?>"><?= strtoupper(substr($_SESSION['role'], 0, 1)) ?></span>
+                <div class="user-avatar-circle" title="User Profile: <?= htmlspecialchars($_SESSION['username']) ?>">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </div>
+                <a href="<?= $logout_path ?>" title="Logout" style="text-decoration: none;">
+                    <div class="user-avatar-circle" style="border-color: #ef4444; color: #ef4444; margin-left: 0.25rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </div>
+                </a>
+            <?php endif; ?>
         </div>
     </header>
 
@@ -54,7 +102,7 @@ session_start();
             <nav class="sidebar-nav">
                 <ul>
                     <li class="active">
-                        <a href="../dashboard/adminDashboard.php">
+                        <a href="./adminDashboard.php">
                             <span class="nav-icon">📊</span>
                             Dashboard
                         </a>
@@ -66,47 +114,55 @@ session_start();
                         </a>
                     </li>
                     <li>
-                        <a href="../RFQ/rfq.php">
+                        <a href="../RFQ/rfq_list.php">
                             <span class="nav-icon">📝</span>
                             RFQ's
                         </a>
                     </li>
                     <li>
-                        <a href="#quotations">
+                        <a href="../quotations/quotations.php">
                             <span class="nav-icon">📁</span>
                             Quotations
                         </a>
                     </li>
                     <li>
-                        <a href="#approvals">
+                        <a href="../approvals/approvals.php">
                             <span class="nav-icon">✅</span>
                             Approvals
                         </a>
                     </li>
                     <li>
-                        <a href="#purchase-orders">
+                        <a href="../purchase_orders/po_list.php">
                             <span class="nav-icon">📦</span>
                             Purchase orders
                         </a>
                     </li>
                     <li>
-                        <a href="#invoices">
+                        <a href="../invoices/invoices.php">
                             <span class="nav-icon">🧾</span>
                             Invoices
                         </a>
                     </li>
                     <li>
-                        <a href="#reports">
+                        <a href="../reports/reports.php">
                             <span class="nav-icon">📈</span>
                             Reports
                         </a>
                     </li>
                     <li>
-                        <a href="#activity">
+                        <a href="../activity/activity.php">
                             <span class="nav-icon">🔔</span>
                             Activity
                         </a>
                     </li>
+                    <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <li>
+                        <a href="../../../register/register.php">
+                            <span class="nav-icon">👤</span>
+                            Add Account
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         </aside>
@@ -117,25 +173,25 @@ session_start();
             <!-- Welcome Header -->
             <section class="content-header">
                 <h1 class="welcome-title">Dashboard</h1>
-                <p class="welcome-subtitle">Welcome back, Procurement Officer - Today's Overview</p>
+                <p class="welcome-subtitle">Welcome back, <?= htmlspecialchars($_SESSION['username']) ?> - Today's Overview</p>
             </section>
 
             <!-- KPI Metric Cards Grid -->
             <section class="kpi-grid">
                 <div class="kpi-card">
-                    <div class="kpi-value">12</div>
+                    <div class="kpi-value"><?= $active_rfqs ?></div>
                     <div class="kpi-label">Active RFQ's</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-value">5</div>
+                    <div class="kpi-value"><?= $pending_app ?></div>
                     <div class="kpi-label">Pending Approvals</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-value">₹ 2.3L</div>
+                    <div class="kpi-value"><?= $po_month_formatted ?></div>
                     <div class="kpi-label">PO's this month</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-value">3</div>
+                    <div class="kpi-value"><?= $pending_pay ?></div>
                     <div class="kpi-label">Pending Payments</div>
                 </div>
             </section>
@@ -157,24 +213,24 @@ session_start();
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Po1</td>
-                                    <td>Infra</td>
-                                    <td>₹ 87,000</td>
-                                    <td><span class="status-pill approved">Approved</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Po2</td>
-                                    <td>Tech core</td>
-                                    <td>₹ 1,40,000</td>
-                                    <td><span class="status-pill pending">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Po3</td>
-                                    <td>OfficeNeed Co</td>
-                                    <td>₹ 34,900</td>
-                                    <td><span class="status-pill draft">draft</span></td>
-                                </tr>
+                                <?php if ($recent_pos && mysqli_num_rows($recent_pos) > 0): ?>
+                                    <?php while ($po = mysqli_fetch_assoc($recent_pos)): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($po['po_number']) ?></td>
+                                            <td><?= htmlspecialchars($po['firstname'] . ' ' . $po['lastname']) ?></td>
+                                            <td>₹ <?= number_format($po['grand_total']) ?></td>
+                                            <td>
+                                                <span class="status-pill <?= strtolower(htmlspecialchars($po['status'])) ?>">
+                                                    <?= htmlspecialchars($po['status']) ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">No purchase orders generated yet.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -273,12 +329,23 @@ session_start();
                 btnMenuToggle.addEventListener('click', toggleMenu);
                 menuBackdrop.addEventListener('click', toggleMenu);
 
-                // Close menu drawer if navigation link is clicked
-                const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
-                sidebarLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        body.classList.remove('menu-open');
-                    });
+            // Button redirects
+            const btnNewRFQ = document.getElementById('btnNewRFQ');
+            if (btnNewRFQ) {
+                btnNewRFQ.addEventListener('click', () => {
+                    window.location.href = '../RFQ/rfq.php';
+                });
+            }
+            const btnAddVendor = document.getElementById('btnAddVendor');
+            if (btnAddVendor) {
+                btnAddVendor.addEventListener('click', () => {
+                    window.location.href = '../../../register/register.php';
+                });
+            }
+            const btnViewInvoices = document.getElementById('btnViewInvoices');
+            if (btnViewInvoices) {
+                btnViewInvoices.addEventListener('click', () => {
+                    window.location.href = '../invoices/invoices.php';
                 });
             }
         });

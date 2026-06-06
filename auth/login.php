@@ -43,7 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'message' => 'Login successful'
             ];
 
-            header("Location: ../dashboard/{$user['role']}Dashboard/{$user['role']}Dashboard.php");
+            if ($user['role'] === 'admin' || $user['role'] === 'procurement_officer') {
+                header("Location: ../dashboard/adminDashboard/dashboard/adminDashboard.php");
+            } else {
+                header("Location: ../dashboard/{$user['role']}Dashboard/{$user['role']}Dashboard.php");
+            }
             exit();
         }
     }

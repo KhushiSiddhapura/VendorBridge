@@ -444,3 +444,100 @@ function sendRFQMail(
         return false;
     }
 }
+
+/**
+ * Sends a Purchase Order generated notification to the vendor.
+ */
+function sendPOMail(
+    string $email,
+    string $firstname,
+    string $poNumber,
+    string $invoiceNumber,
+    float  $grandTotal
+): bool {
+    $mail = _getMailer();
+    if (!$mail) return false;
+
+    try {
+        $mail->addAddress($email);
+        $mail->Subject = "Purchase Order Issued — {$poNumber}";
+
+        $safeFirst = htmlspecialchars($firstname, ENT_QUOTES);
+        $safePO = htmlspecialchars($poNumber, ENT_QUOTES);
+        $safeInv = htmlspecialchars($invoiceNumber, ENT_QUOTES);
+        $formatted_total = number_format($grandTotal, 2);
+
+        $body = <<<HTML
+        <h2>Purchase Order Issued</h2>
+        <p>Hi {$safeFirst}, a new Purchase Order has been generated and dispatched to your account.</p>
+
+        <div class="cred-box">
+            <p><strong>PO Number:</strong> {$safePO}</p>
+            <p><strong>Associated Invoice:</strong> {$safeInv}</p>
+            <p><strong>Total Value:</strong> ₹ {$formatted_total}</p>
+        </div>
+
+        <p>Please log in to your VendorBridge dashboard to review the PO terms, billing details, and shipping address instructions.</p>
+        HTML;
+
+        $mail->Body    = _wrapEmailTemplate($body);
+        $mail->AltBody = "Hi {$safeFirst}, a new Purchase Order {$safePO} (Invoice: {$safeInv}) worth INR {$formatted_total} has been issued. Log in to VendorBridge to review details.";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log('[mailService] sendPOMail failed: ' . $mail->ErrorInfo);
+        return false;
+    }
+}
+
+/**
+ * Sends a detailed Invoice email copy to the vendor.
+ */
+function sendInvoiceMail(
+    string $email,
+    string $firstname,
+    string $invoiceNumber,
+    string $poNumber,
+    float  $grandTotal,
+    float  $subtotal,
+    float  $taxAmount
+): bool {
+    $mail = _getMailer();
+    if (!$mail) return false;
+
+    try {
+        $mail->addAddress($email);
+        $mail->Subject = "Invoice Dispatched — {$invoiceNumber}";
+
+        $safeFirst = htmlspecialchars($firstname, ENT_QUOTES);
+        $safeInv = htmlspecialchars($invoiceNumber, ENT_QUOTES);
+        $safePO = htmlspecialchars($poNumber, ENT_QUOTES);
+        $fmt_sub = number_format($subtotal, 2);
+        $fmt_tax = number_format($taxAmount, 2);
+        $fmt_tot = number_format($grandTotal, 2);
+
+        $body = <<<HTML
+        <h2>Invoice Details for {$safeInv}</h2>
+        <p>Hi {$safeFirst}, here is the invoice copy generated from Purchase Order {$safePO}.</p>
+
+        <div class="cred-box">
+            <p><strong>Invoice Number:</strong> {$safeInv}</p>
+            <p><strong>Subtotal:</strong> ₹ {$fmt_sub}</p>
+            <p><strong>Tax amount (GST 18%):</strong> ₹ {$fmt_tax}</p>
+            <p><strong>Grand Total:</strong> ₹ {$fmt_tot}</p>
+        </div>
+
+        <p>Please proceed with standard payment terms processing. Feel free to contact our procurement team if you have any questions.</p>
+        HTML;
+
+        $mail->Body    = _wrapEmailTemplate($body);
+        $mail->AltBody = "Hi {$safeFirst}, Invoice {$safeInv} for PO {$safePO} has been dispatched. Total: INR {$fmt_tot}.";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log('[mailService] sendInvoiceMail failed: ' . $mail->ErrorInfo);
+        return false;
+    }
+}
