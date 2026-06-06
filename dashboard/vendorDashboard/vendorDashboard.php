@@ -163,6 +163,12 @@ $po_query = mysqli_query($conn, "
                             Dashboard
                         </a>
                     </li>
+                    <li>
+                        <a href="quotations.php">
+                            <span class="nav-icon">📁</span>
+                            Quotations
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </aside>

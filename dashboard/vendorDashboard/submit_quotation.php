@@ -226,6 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <nav class="sidebar-nav">
                 <ul>
                     <li><a href="vendorDashboard.php"><span class="nav-icon">📊</span> Dashboard</a></li>
+                    <li class="active"><a href="quotations.php"><span class="nav-icon">📁</span> Quotations</a></li>
                 </ul>
             </nav>
         </aside>
