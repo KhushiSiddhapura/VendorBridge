@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VendorBridge portal main dashboard. Track vendors, purchase orders, quotations, and active RFQs.">
+    <title>VendorBridge - Dashboard portal</title>
+    <link rel="stylesheet" href="landingpage.css">
+</head>
+<body>
+
+    <!-- Mobile Menu Backdrop -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- Header Bar -->
+    <header class="dash-header">
+        <div class="header-left">
+            <button class="menu-toggle-btn" id="btnMenuToggle" aria-label="Toggle Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="header-logo">
+                <span>Vendor</span>Bridge
+            </div>
+        </div>
+        <div class="header-profile-group">
+            <span class="avatar-initial color-m" title="Manager">M</span>
+            <span class="avatar-initial color-a" title="Admin">A</span>
+            <span class="avatar-initial color-s" title="Supervisor">S</span>
+            <span class="avatar-initial color-g" title="Guest">G</span>
+            <div class="user-avatar-circle" title="User Profile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- App Main Layout -->
+    <div class="app-layout">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#dashboard">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#vendors">
+                            <span class="nav-icon">🤝</span>
+                            Vendors
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#rfqs">
+                            <span class="nav-icon">📝</span>
+                            RFQ's
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#quotations">
+                            <span class="nav-icon">📁</span>
+                            Quotations
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#approvals">
+                            <span class="nav-icon">✅</span>
+                            Approvals
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#purchase-orders">
+                            <span class="nav-icon">📦</span>
+                            Purchase orders
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#invoices">
+                            <span class="nav-icon">🧾</span>
+                            Invoices
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#reports">
+                            <span class="nav-icon">📈</span>
+                            Reports
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#activity">
+                            <span class="nav-icon">🔔</span>
+                            Activity
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Dashboard Panel -->
+        <main class="app-content">
+            
+            <!-- Welcome Header -->
+            <section class="content-header">
+                <h1 class="welcome-title">Dashboard</h1>
+                <p class="welcome-subtitle">Welcome back, Procurement Officer - Today's Overview</p>
+            </section>
+
+            <!-- KPI Metric Cards Grid -->
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value">12</div>
+                    <div class="kpi-label">Active RFQ's</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">5</div>
+                    <div class="kpi-label">Pending Approvals</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">₹ 2.3L</div>
+                    <div class="kpi-label">PO's this month</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">Pending Payments</div>
+                </div>
+            </section>
+
+            <!-- Middle Split Panel Section -->
+            <div class="dashboard-split">
+                
+                <!-- Recent Purchase Orders Card -->
+                <section class="split-card orders-card">
+                    <h2 class="card-title">Recent Purchase Orders</h2>
+                    <div class="table-responsive">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>PO#</th>
+                                    <th>Vendor</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Po1</td>
+                                    <td>Infra</td>
+                                    <td>₹ 87,000</td>
+                                    <td><span class="status-pill approved">Approved</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Po2</td>
+                                    <td>Tech core</td>
+                                    <td>₹ 1,40,000</td>
+                                    <td><span class="status-pill pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Po3</td>
+                                    <td>OfficeNeed Co</td>
+                                    <td>₹ 34,900</td>
+                                    <td><span class="status-pill draft">draft</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Spending Trends Graphic Card -->
+                <section class="split-card trends-card">
+                    <h2 class="card-title">Spending Trends last 6 months</h2>
+                    <div class="trends-visual-container">
+                        <!-- Left Side: Circular slice/Pie Chart and legend -->
+                        <div class="trends-left">
+                            <div class="pie-chart-container">
+                                <!-- SVG Pie Chart -->
+                                <svg width="100" height="100" viewBox="0 0 36 36" class="pie-chart">
+                                    <circle class="pie-bg" cx="18" cy="18" r="15.91549430918954" fill="none" stroke="#f1f5f9" stroke-width="4.2"></circle>
+                                    <circle class="pie-segment segment-primary" cx="18" cy="18" r="15.91549430918954" fill="none" stroke="#2563eb" stroke-width="4.2" stroke-dasharray="65 35" stroke-dashoffset="25"></circle>
+                                    <circle class="pie-segment segment-secondary" cx="18" cy="18" r="15.91549430918954" fill="none" stroke="#60a5fa" stroke-width="4.2" stroke-dasharray="25 75" stroke-dashoffset="90"></circle>
+                                    <circle class="pie-segment segment-accent" cx="18" cy="18" r="15.91549430918954" fill="none" stroke="#34d399" stroke-width="4.2" stroke-dasharray="10 90" stroke-dashoffset="100"></circle>
+                                </svg>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item"><span class="bullet p-blue"></span> PO Orders</div>
+                                <div class="legend-item"><span class="bullet p-light-blue"></span> RFQ Sourcing</div>
+                                <div class="legend-item"><span class="bullet p-green"></span> Invoices</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Graphic Trends Display -->
+                        <div class="trends-right">
+                            <!-- SVG Line Graph Sourcing Graph -->
+                            <div class="line-graph-container">
+                                <svg viewBox="0 0 160 60" class="line-graph" width="100%" height="60">
+                                    <path d="M 10 50 Q 35 25, 60 38 T 110 18 T 150 25" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"></path>
+                                    <circle cx="10" cy="50" r="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                                    <circle cx="35" cy="30" r="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                                    <circle cx="60" cy="38" r="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                                    <circle cx="85" cy="22" r="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                                    <circle cx="110" cy="18" r="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                                    <circle cx="150" cy="25" r="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                                </svg>
+                            </div>
+                            
+                            <!-- Custom Bar Chart Visualization -->
+                            <div class="bar-chart-container">
+                                <div class="chart-bar-col">
+                                    <div class="bar-fill" style="height: 60%;"></div>
+                                </div>
+                                <div class="chart-bar-col">
+                                    <div class="bar-fill" style="height: 80%;"></div>
+                                </div>
+                                <div class="chart-bar-col">
+                                    <div class="bar-fill" style="height: 45%;"></div>
+                                </div>
+                                <div class="chart-bar-col">
+                                    <div class="bar-fill" style="height: 95%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Bottom Actions Area -->
+            <footer class="content-actions">
+                <hr class="actions-divider">
+                <div class="actions-row">
+                    <button class="btn btn-primary" id="btnNewRFQ">
+                        <span class="btn-icon">+</span> new RFQ
+                    </button>
+                    <button class="btn btn-outline" id="btnAddVendor">
+                        Add Vendor
+                    </button>
+                    <button class="btn btn-outline" id="btnViewInvoices">
+                        View Invoices
+                    </button>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- Toggle Navigation Script for Mobile Hamburger Menu -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnMenuToggle = document.getElementById('btnMenuToggle');
+            const menuBackdrop = document.getElementById('menuBackdrop');
+            const body = document.body;
+
+            if (btnMenuToggle && menuBackdrop) {
+                const toggleMenu = (e) => {
+                    e.preventDefault();
+                    body.classList.toggle('menu-open');
+                };
+
+                btnMenuToggle.addEventListener('click', toggleMenu);
+                menuBackdrop.addEventListener('click', toggleMenu);
+
+                // Close menu drawer if navigation link is clicked
+                const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        body.classList.remove('menu-open');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
