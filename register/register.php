@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,6 +14,8 @@
     <title>VendorBridge - Register</title>
 
     <link rel="stylesheet" href="register.css">
+    <link rel="stylesheet" href="../toaster/toaster.css">
+    <script src="../toaster/toaster.js"></script>
 </head>
 
 <body>
@@ -358,9 +364,15 @@
 
     </main>
 
-    <div class="toast-container" aria-live="polite"></div>
-
-    <script src="script.js"></script>
+    <?php if(isset($_SESSION['toast'])): ?>
+    <script>
+    showToast(
+        <?= json_encode($_SESSION['toast']['message']) ?>,
+        <?= json_encode($_SESSION['toast']['type']) ?>
+    );
+    </script>
+    <?php unset($_SESSION['toast']); ?>
+    <?php endif; ?>
 
 </body>
 

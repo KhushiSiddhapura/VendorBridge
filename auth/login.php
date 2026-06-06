@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => 'Please fill all fields'
         ];
 
-        header('Location: ../login/login.html');
+        header('Location: ../login/login.php');
         exit();
     }
 
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'message' => 'Invalid credentials'
     ];
 
-    header('Location: ../index.php');
+    header('Location: ../login/login.php');
     exit();
 
 } else {

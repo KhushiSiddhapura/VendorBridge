@@ -16,7 +16,7 @@
         <div class="nav-links">
             <a href="#features">Features</a>
             <a href="#about">About</a>
-            <a href="./login/login.html" class="login-btn">Login</a>
+            <a href="./login/login.php" class="login-btn">Login</a>
         </div>
     </nav>
 

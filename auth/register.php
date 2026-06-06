@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => 'Please fill all required fields'
         ];
 
-        header('Location: ../index.php');
+        header('Location: ../register/register.php');
         exit();
     }
 
@@ -46,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'message' => 'Email already exists'
         ];
 
-        header('Location: ../index.php');
+        header('Location: ../register/register.php');
+
         exit();
     }
 
