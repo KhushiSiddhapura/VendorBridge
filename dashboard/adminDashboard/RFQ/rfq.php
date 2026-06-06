@@ -1,8 +1,8 @@
 <?php
-session_start();
-
-require '../../../config/connection.php';
+require_once '../../../auth/session_helper.php';
+require_once '../../../config/connection.php';
 require_once '../../../services/mailService.php';
+requireRoles(['admin', 'procurement_officer']);
 
 // ==========================================
 // PART 1: POST SUBMISSION PROCESSING HANDLER

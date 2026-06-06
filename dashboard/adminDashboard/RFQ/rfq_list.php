@@ -1,8 +1,7 @@
 <?php
-session_start();
-
-// Import system database connection parameter
-require '../../../config/connection.php';
+require_once '../../../auth/session_helper.php';
+require_once '../../../config/connection.php';
+requireRoles(['admin', 'procurement_officer']);
 
 // Fetch all created RFQs sorted by the newest first
 $rfq_query = mysqli_query($conn, "SELECT * FROM rfqs ORDER BY created_at DESC");

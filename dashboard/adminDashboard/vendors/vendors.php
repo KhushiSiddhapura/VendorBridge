@@ -1,8 +1,7 @@
 <?php
-
-session_start();
-
-require '../../../config/connection.php';
+require_once '../../../auth/session_helper.php';
+require_once '../../../config/connection.php';
+requireRoles(['admin', 'procurement_officer']);
 
 $vendors = mysqli_query(
     $conn,
