@@ -204,6 +204,12 @@ session_start();
 
                         </button>
 
+                        <div style="text-align:center; margin-top:0.75rem;">
+                            <a href="../auth/forgot_password.php" style="font-size:0.85rem; color:var(--primary-color); text-decoration:none; font-weight:600;">
+                                Forgot Password?
+                            </a>
+                        </div>
+
                     </form>
 
                     <footer class="form-footer">
