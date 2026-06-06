@@ -4,66 +4,122 @@ include '../config/connection.php';
 
 session_start();
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
 
-    // Basic validation
-    if (empty($username) || empty($password) || empty($confirm_password)) {
-          $_SESSION['toast'] = [
-            'type' => 'fail',
-            'message' => 'Invalid data'
-        ];
+    $firstname  = trim($_POST['firstname'] ?? '');
+    $lastname   = trim($_POST['lastname'] ?? '');
+    $email      = trim($_POST['email'] ?? '');
+    $phone      = trim($_POST['phone'] ?? '');
+    $role       = trim($_POST['role'] ?? '');
+    $country    = trim($_POST['country'] ?? '');
+    $description = trim($_POST['description'] ?? '');
 
-        header('Location: ../index.php');
-        exit();
-    }
-
-    if ($password !== $confirm_password) {
-          $_SESSION['toast'] = [
-            'type' => 'fail',
-            'message' => 'password mismatch'
-        ];
-
-        header('Location: ../index.php');
-        exit();
-    }
-
-    $sql = "SELECT id FROM users WHERE username = '$username'";
-
-    $result = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($result) > 0) {
+    // Validation
+    if (
+        empty($firstname) ||
+        empty($lastname) ||
+        empty($email) ||
+        empty($phone) ||
+        empty($role) ||
+        empty($country)
+    ) {
 
         $_SESSION['toast'] = [
             'type' => 'fail',
-            'message' => 'user already exists!'
+            'message' => 'Please fill all required fields'
         ];
 
         header('Location: ../index.php');
         exit();
     }
 
-    // Hash the password
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+    // Check if email already exists
+    $checkEmail = mysqli_query(
+        $conn,
+        "SELECT id FROM users WHERE email = '$email'"
+    );
 
-    // Insert new user into the database
-    $sql = "INSERT INTO users (username, password) VALUES ('$username', '$hashed_password')";
+    if (mysqli_num_rows($checkEmail) > 0) {
+
+        $_SESSION['toast'] = [
+            'type' => 'fail',
+            'message' => 'Email already exists'
+        ];
+
+        header('Location: ../index.php');
+        exit();
+    }
+
+    // Generate username
+    $baseUsername = strtolower(
+        preg_replace('/[^a-zA-Z0-9]/', '', $firstname) .
+        '_' .
+        preg_replace('/[^a-zA-Z0-9]/', '', $lastname)
+    );
+
+    // Default password = username
+    $hashedPassword = password_hash($username, PASSWORD_BCRYPT);
+
+    // Ensure username is unique
+    do {
+
+        $randomNumber = rand(1, 9999);
+
+        $username = $baseUsername . $randomNumber;
+
+        $checkUsername = mysqli_query(
+            $conn,
+            "SELECT id FROM users WHERE username = '$username'"
+        );
+
+    } while (mysqli_num_rows($checkUsername) > 0);
+
+    // Insert user
+    $sql = "INSERT INTO users (
+            firstname,
+            lastname,
+            username,
+            email,
+            password,
+            phone,
+            role,
+            country,
+            description
+        )
+        VALUES (
+            '$firstname',
+            '$lastname',
+            '$username',
+            '$email',
+            '$hashedPassword',
+            '$phone',
+            '$role',
+            '$country',
+            '$description'
+        )";
+
     if (mysqli_query($conn, $sql)) {
 
         $_SESSION['toast'] = [
             'type' => 'success',
-            'message' => 'Registration successful!'
+            'message' => 'User created successfully'
         ];
 
-    header('Location: ../dashbaord/dashbaord.html');
-    exit();
+        header('Location: ../dashboard/dashboard.html');
+        exit();
 
     } else {
-        die('Error: ' . mysqli_error($conn));
+
+        $_SESSION['toast'] = [
+            'type' => 'fail',
+            'message' => mysqli_error($conn)
+        ];
+
+        header('Location: ../index.php');
+        exit();
     }
+
 } else {
+
     die('Invalid request method.');
 }

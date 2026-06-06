@@ -1,52 +1,62 @@
 <?php
+
 include '../config/connection.php';
 session_start();
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
 
-    // Basic validation
-    if (empty($username) || empty($password)) {
+    $login = trim($_POST['login'] ?? '');
+    $password = $_POST['password'] ?? '';
+
+    // Validation
+    if (empty($login) || empty($password)) {
+
         $_SESSION['toast'] = [
             'type' => 'fail',
-            'message' => 'Invalid data'
+            'message' => 'Please fill all fields'
         ];
 
-        header('Location: ../index.php');
+        header('Location: ../login/login.html');
         exit();
     }
 
-    // Check if username already exists
-    $sql = "SELECT * FROM users WHERE username = '$username'";
+    // Search by username OR email
+    $sql = "SELECT * FROM users
+            WHERE username = '$login'
+            OR email = '$login'
+            LIMIT 1";
+
     $result = mysqli_query($conn, $sql);
-    $user = mysqli_fetch_assoc($result);
 
-    
-    if (mysqli_num_rows($result) === 1 && password_verify($password, $user['password'])) {
+    if (mysqli_num_rows($result) === 1) {
 
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['id'] = $user['id'];
+        $user = mysqli_fetch_assoc($result);
 
-        $_SESSION['toast'] = [
-            'type' => 'success',
-            'message' => 'login successfull'
-        ];
+        if (password_verify($password, $user['password'])) {
 
-        header('Location: ../dashbaord/dashbaord.html');
-        exit();
+            $_SESSION['id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['role'] = $user['role'];
 
-    } else {
-        $_SESSION['toast'] = [
-            'type' => 'fail',
-            'message' => 'invalid credentials'
-        ];
+            $_SESSION['toast'] = [
+                'type' => 'success',
+                'message' => 'Login successful'
+            ];
 
-        header("Location: ../index.php");
-        exit();
-
+            header('Location: ../dashboard/dashboard.html');
+            exit();
+        }
     }
+
+    $_SESSION['toast'] = [
+        'type' => 'fail',
+        'message' => 'Invalid credentials'
+    ];
+
+    header('Location: ../index.php');
+    exit();
+
 } else {
+
     die('Invalid request method.');
 }

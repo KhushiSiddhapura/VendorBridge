@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 06, 2026 at 05:50 AM
+-- Generation Time: Jun 06, 2026 at 07:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,6 +41,15 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `firstname`, `lastname`, `username`, `email`, `password`, `phone`, `role`, `country`, `description`) VALUES
+(1, 'System', 'Admin', 'admin', 'admin@example.com', '$2y$10$cSdEbGJyQPjt5Gdlk2NvcujK2jqQuXjhNeOKUvUZ0YiIvSNe9Fcc6', 2147483647, 'admin', 'India', 'System administrator account'),
+(2, 'system', 'vendor', 'system_vendor869', 'systemvendor@example.com', '$2y$10$rii5/w.ge2LZP5Wz8Wz7futX.bBAc9kGBpoMyH/3qF/DAyDuX8yVu', 2147483647, 'vendor', 'India', 'this is a system vendor'),
+(3, 'system', 'vendor', 'system_vendor5097', 'systemvendor1@example.com', '$2y$10$tSNo.qEVYNsNnGkZHkJGg.tVTOqUX1zQBSsL0DdutSiIoTQpujbu2', 2147483647, 'vendor', 'India', 'abcd');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -50,8 +59,8 @@ CREATE TABLE `users` (
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `phone` (`phone`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `username_2` (`username`,`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -61,7 +70,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
